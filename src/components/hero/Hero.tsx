@@ -5,7 +5,8 @@ import { AnimatePresence, animate, motion, useMotionValue, useMotionValueEvent, 
 import { ArrowRight, ArrowUpRight, Phone } from "lucide-react";
 import { brand } from "@/config/brand";
 import { destinations, haversineKm } from "@/data/destinations";
-import { SkyStage } from "@/components/scene/SkyStage";
+import { AdatMark } from "./AdatMark";
+import { BrandStage } from "./BrandStage";
 import { Button } from "@/components/ui/button";
 import {
   DEFAULT_DOY,
@@ -220,37 +221,37 @@ export function Hero() {
 
   return (
     <>
-    <section id="top" className="relative isolate flex h-svh min-h-[780px] flex-col overflow-hidden text-white">
-      <SkyStage dest={dest} hour={hour} doy={doy} />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[46%] bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+    <section id="top" className="relative isolate flex h-svh min-h-[780px] flex-col overflow-hidden text-[#443A2C]">
+      <BrandStage dest={dest} hour={hour} doy={doy} />
 
       <header className="relative z-20 mx-auto flex w-full max-w-[1480px] items-center justify-between gap-6 px-5 pt-5 sm:px-8 sm:pt-7 lg:px-12">
-        <a href="#top" className="flex items-baseline gap-3" aria-label={brand.name}>
-          <span className="font-display text-[1.7rem] font-medium tracking-[0.34em]">{brand.name}</span>
-          <span className="hidden text-[10px] uppercase tracking-[0.3em] text-white/55 xl:inline">{brand.descriptor}</span>
+        <a href="#top" className="flex items-center gap-3 text-[#315059]" aria-label={brand.name}>
+          <AdatMark className="h-12 w-auto shrink-0" />
+          <span className="leading-none">
+            <span className="block font-display text-[1.55rem] tracking-[0.28em]">{brand.name}</span>
+            <span className="mt-1 block text-[9px] uppercase tracking-[0.22em] text-[#443A2C]/70">{brand.descriptor}</span>
+          </span>
         </a>
         <nav aria-label="Основное меню" className="hidden items-center gap-9 lg:flex">
           {brand.nav.map((item) => (
             <a
               key={item.href}
               href={item.href}
-              className="group relative text-[13px] tracking-wide text-white/80 transition-colors hover:text-white"
+              className="group relative text-[13px] tracking-wide text-[#443A2C]/75 transition-colors hover:text-[#315059]"
             >
               {item.label}
-              <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-brand transition-all duration-300 group-hover:w-full" />
+              <span className="absolute -bottom-1.5 left-0 h-px w-0 bg-[#b24d29] transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
         </nav>
         <div className="flex items-center gap-3">
-          <a href={brand.phoneHref} className="hidden items-center gap-2 text-sm text-white/80 hover:text-white xl:flex">
+          <a href={brand.phoneHref} className="hidden items-center gap-2 text-sm text-[#443A2C]/80 hover:text-[#315059] xl:flex">
             <Phone className="size-3.5" /> {brand.phone}
           </a>
           <Button
             onClick={() => setLeadOpen(true)}
             variant="outline"
-            className="h-10 rounded-full border-white/30 bg-white/10 px-5 text-[13px] text-white backdrop-blur-md hover:bg-white/20 hover:text-white"
+            className="h-10 rounded-full border-[#315059]/30 bg-[#ebe0cc]/70 px-5 text-[13px] text-[#315059] hover:bg-[#315059] hover:text-[#ebe0cc]"
           >
             Подобрать тур
           </Button>
@@ -263,17 +264,17 @@ export function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.2 }}
-            className="mb-5 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.3em] text-white/75 sm:mb-7"
+            className="mb-5 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.3em] text-[#315059] sm:mb-7"
           >
             <span className="h-px w-10 bg-brand" />
             {brand.hero.eyebrow}
           </motion.p>
 
-          <h1 className="font-heading text-[clamp(2.9rem,7.6vw,7.4rem)] font-light leading-[0.94] tracking-[-0.01em] text-balance drop-shadow-[0_2px_30px_rgba(0,0,0,0.25)]">
+          <h1 className="font-heading text-[clamp(2.9rem,7.6vw,7.4rem)] font-light leading-[0.94] tracking-[-0.01em] text-balance text-[#443A2C]">
             {lines.map((line, i) => (
               <span key={line} className="block overflow-hidden pb-[0.08em] lg:whitespace-nowrap">
                 <motion.span
-                  className={`block ${i === 1 ? "italic text-brand" : ""}`}
+                  className={`block ${i === 1 ? "italic text-[#b24d29]" : ""}`}
                   initial={{ y: "108%" }}
                   animate={{ y: 0 }}
                   transition={{ duration: 1.25, delay: 0.35 + i * 0.16, ease: [0.16, 1, 0.3, 1] }}
@@ -288,9 +289,17 @@ export function Hero() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.9 }}
-            className="mt-5 hidden max-w-[34rem] text-[15px] leading-relaxed text-white/80 sm:mt-7 sm:block sm:text-base"
+            className="mt-5 hidden max-w-[34rem] text-[15px] leading-relaxed text-[#443A2C]/85 sm:mt-7 sm:block sm:text-base"
           >
             {brand.hero.lead}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1 }}
+            className="mt-4 hidden max-w-[32rem] text-[13px] leading-relaxed text-[#443A2C]/65 lg:block"
+          >
+            {brand.hero.pattern}
           </motion.p>
 
           <motion.div
@@ -308,7 +317,7 @@ export function Hero() {
             </Button>
             <a
               href="#destinations"
-              className="group inline-flex items-center gap-1.5 border-b border-white/30 pb-0.5 text-sm text-white/85 transition-colors hover:border-brand hover:text-white"
+              className="group inline-flex items-center gap-1.5 border-b border-[#443A2C]/30 pb-0.5 text-sm text-[#443A2C]/85 transition-colors hover:border-[#b24d29] hover:text-[#315059]"
             >
               {brand.hero.secondaryCta}
               <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -316,13 +325,13 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <div id="destinations" className="lg:w-[22rem] lg:shrink-0">
+        <div id="destinations" className="rounded-sm bg-[#ebe0cc]/86 p-3 shadow-[0_22px_50px_rgba(68,58,44,0.14)] backdrop-blur-[2px] lg:w-[22rem] lg:shrink-0 lg:p-4">
         <motion.nav
           aria-label="Направления"
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 1.1 }}
-          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none [text-shadow:0_1px_18px_rgba(0,0,0,0.55)] lg:mx-0 lg:w-full lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
+          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none lg:mx-0 lg:w-full lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
         >
           {destinations.map((d, i) => {
             const active = i === idx;
@@ -334,16 +343,16 @@ export function Hero() {
                 aria-current={active}
                 className={`group flex shrink-0 items-center gap-3 rounded-full border px-4 py-2 transition-colors lg:w-full lg:justify-end lg:rounded-none lg:border-0 lg:px-0 lg:py-2.5 ${
                   active
-                    ? "border-brand bg-white/10 text-white lg:bg-transparent"
-                    : "border-white/20 text-white/55 hover:text-white lg:border-0"
+                    ? "border-[#315059] bg-[#315059]/8 text-[#315059] lg:bg-transparent"
+                    : "border-[#443A2C]/20 text-[#443A2C]/50 hover:text-[#315059] lg:border-0"
                 }`}
               >
-                <span className="mr-1 hidden h-px flex-1 origin-right bg-white/25 lg:block">
+                <span className="mr-1 hidden h-px flex-1 origin-right bg-[#443A2C]/20 lg:block">
                   <span
-                    className={`block h-px origin-right bg-brand transition-transform duration-700 ${active ? "scale-x-100" : "scale-x-0"}`}
+                    className={`block h-px origin-right bg-[#b24d29] transition-transform duration-700 ${active ? "scale-x-100" : "scale-x-0"}`}
                   />
                 </span>
-                <span className="text-[11px] tabular-nums tracking-widest text-white/50 max-lg:hidden">
+                <span className="text-[11px] tabular-nums tracking-widest text-[#443A2C]/45 max-lg:hidden">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span
@@ -364,9 +373,9 @@ export function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.4 }}
-                className="mt-3 text-sm leading-relaxed text-white/70"
+                className="mt-3 text-sm leading-relaxed text-[#443A2C]/75"
               >
-                <span className="mb-1 block text-[11px] uppercase tracking-[0.24em] text-brand">{dest.kicker}</span>
+                <span className="mb-1 block text-[11px] uppercase tracking-[0.24em] text-[#b24d29]">{dest.kicker}</span>
                 {dest.blurb}
               </motion.p>
             </AnimatePresence>
@@ -376,13 +385,17 @@ export function Hero() {
         </div>
       </div>
 
+      <div className="relative z-10 mx-auto mt-2 w-full max-w-[1480px] px-5 sm:px-8 lg:px-12">
+        <div className="pattern-drift h-12 w-full shadow-[inset_0_0_0_1px_rgba(235,224,204,0.35)] sm:h-14" />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.1, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 mx-auto mb-4 mt-5 w-full max-w-[1480px] px-3 sm:mb-6 sm:px-6 lg:px-12"
       >
-        <div className="grid gap-5 rounded-[1.75rem] border border-white/15 bg-black/25 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:p-5 lg:grid-cols-[17rem_minmax(0,1fr)_17rem] lg:items-center lg:gap-8 lg:px-7 lg:py-5 xl:grid-cols-[18rem_minmax(0,1fr)_minmax(16rem,22rem)]">
+        <div className="grid gap-5 rounded-[1.75rem] border border-[#ebe0cc]/20 bg-[#315059] p-4 text-white shadow-[0_30px_70px_rgba(49,80,89,0.28)] sm:p-5 lg:grid-cols-[17rem_minmax(0,1fr)_17rem] lg:items-center lg:gap-8 lg:px-7 lg:py-5 xl:grid-cols-[18rem_minmax(0,1fr)_minmax(16rem,22rem)]">
           <div className="flex items-end justify-between gap-4 lg:block">
             <div>
               <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">

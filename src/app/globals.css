@@ -212,6 +212,10 @@ html {
   from { transform: translateX(-90px); }
   to { transform: translateX(90px); }
 }
+@keyframes pattern-drift {
+  from { background-position: 0 40%; }
+  to { background-position: -220px 40%; }
+}
 
 .drift-slow { animation: drift 70s ease-in-out infinite alternate; }
 .drift-mid { animation: drift 46s ease-in-out infinite alternate-reverse; }
@@ -224,9 +228,14 @@ html {
 .twinkle { animation: twinkle 3.6s ease-in-out infinite; }
 .gulls { animation: gulls 38s linear infinite alternate; }
 .mist-drift { animation: mist 55s ease-in-out infinite alternate; }
+.pattern-drift {
+  background-image: url("/brand/pattern-sea.jpg");
+  background-size: auto 240%;
+  animation: pattern-drift 36s linear infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .drift-slow, .drift-mid, .bob, .shimmer, .twinkle, .gulls, .mist-drift { animation: none; }
+  .drift-slow, .drift-mid, .bob, .shimmer, .twinkle, .gulls, .mist-drift, .pattern-drift { animation: none; }
 }
 
 .scrollbar-none { scrollbar-width: none; }
