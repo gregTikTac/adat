@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# The brand book is larger than GitHub allows, so the PDF stays on disk only.
+brand/*.pdf
