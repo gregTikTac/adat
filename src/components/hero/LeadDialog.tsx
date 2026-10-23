@@ -75,13 +75,13 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="gap-5 rounded-3xl border border-white/10 bg-[#0d111c]/95 p-6 text-white shadow-2xl ring-0 backdrop-blur-xl sm:max-w-md sm:p-8">
+      <DialogContent className="gap-5 rounded-sm border border-[#443A2C]/15 bg-[#ebe0cc] p-6 text-[#443A2C] shadow-none ring-0 sm:max-w-md sm:p-8">
         {status === "sent" ? (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
             <CheckCircle2 className="size-10 text-brand" strokeWidth={1.4} />
             <DialogTitle className="font-display text-3xl font-light">Заявка принята</DialogTitle>
-            <DialogDescription className="text-white/65">
-              Менеджер свяжется с вами в ближайшее время и предложит варианты под ваши даты и бюджет.
+            <DialogDescription className="text-[#443A2C]/70">
+              Заявка записана в прототипе. Менеджер её не увидит, пока не подключена CRM. Позвонить можно по номеру на сайте.
             </DialogDescription>
             <Button
               onClick={() => handleOpenChange(false)}
@@ -94,14 +94,14 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
           <>
             <DialogHeader className="gap-2">
               <DialogTitle className="font-heading text-4xl font-light leading-none">Подберём тур</DialogTitle>
-              <DialogDescription className="text-white/65">
-                Выберите маршрут по Дагестану — вернёмся с датами, форматом группы и бюджетом. Без обязательств.
+              <DialogDescription className="text-[#443A2C]/70">
+                Напишите, куда хотите. Заявка останется на сервере прототипа, пока CRM не подключена.
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={onSubmit} className="grid gap-4" noValidate>
               <fieldset className="grid gap-2">
-                <legend className="mb-1 text-xs uppercase tracking-[0.18em] text-white/55">Направление</legend>
+                <legend className="mb-1 text-xs uppercase tracking-[0.18em] text-[#443A2C]/55">Направление</legend>
                 <div className="flex flex-wrap gap-1.5">
                   {destinations.map((d) => (
                     <button
@@ -112,7 +112,7 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
                       className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
                         destination === d.name
                           ? "border-brand bg-brand text-brand-ink"
-                          : "border-white/20 text-white/75 hover:border-white/50"
+                          : "border-[#443A2C]/20 text-[#443A2C]/75 hover:border-[#315059]"
                       }`}
                     >
                       {d.name}
@@ -122,7 +122,7 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
               </fieldset>
 
               <div className="grid gap-1.5">
-                <Label htmlFor="lead-name" className="text-white/80">
+                <Label htmlFor="lead-name" className="text-[#443A2C]/80">
                   Имя
                 </Label>
                 <Input
@@ -131,14 +131,14 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
                   autoComplete="name"
                   required
                   aria-invalid={!!fieldErrors.name}
-                  className="h-11 rounded-xl border-white/15 bg-white/5 px-3.5 text-white placeholder:text-white/35"
+                  className="h-11 rounded-sm border-[#443A2C]/20 bg-transparent px-3.5 text-[#443A2C] placeholder:text-[#443A2C]/35"
                   placeholder="Как к вам обращаться"
                 />
-                {fieldErrors.name && <p className="text-xs text-red-300">{fieldErrors.name}</p>}
+                {fieldErrors.name && <p className="text-xs text-[#b24d29]">{fieldErrors.name}</p>}
               </div>
 
               <div className="grid gap-1.5">
-                <Label htmlFor="lead-contact" className="text-white/80">
+                <Label htmlFor="lead-contact" className="text-[#443A2C]/80">
                   Телефон или Telegram
                 </Label>
                 <Input
@@ -147,27 +147,27 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
                   autoComplete="tel"
                   required
                   aria-invalid={!!fieldErrors.contact}
-                  className="h-11 rounded-xl border-white/15 bg-white/5 px-3.5 text-white placeholder:text-white/35"
+                  className="h-11 rounded-sm border-[#443A2C]/20 bg-transparent px-3.5 text-[#443A2C] placeholder:text-[#443A2C]/35"
                   placeholder="+7 900 000-00-00 или @username"
                 />
-                {fieldErrors.contact && <p className="text-xs text-red-300">{fieldErrors.contact}</p>}
+                {fieldErrors.contact && <p className="text-xs text-[#b24d29]">{fieldErrors.contact}</p>}
               </div>
 
               <div className="grid gap-1.5">
-                <Label htmlFor="lead-comment" className="text-white/80">
-                  Пожелания <span className="text-white/40">(необязательно)</span>
+                <Label htmlFor="lead-comment" className="text-[#443A2C]/80">
+                  Пожелания <span className="text-[#443A2C]/40">(необязательно)</span>
                 </Label>
                 <Textarea
                   id="lead-comment"
                   name="comment"
                   rows={3}
-                  className="resize-none rounded-xl border-white/15 bg-white/5 px-3.5 py-2.5 text-white placeholder:text-white/35"
+                  className="resize-none rounded-sm border-[#443A2C]/20 bg-transparent px-3.5 py-2.5 text-[#443A2C] placeholder:text-[#443A2C]/35"
                   placeholder="Даты, состав, бюджет, что важно"
                 />
               </div>
 
               {error && (
-                <p role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-200">
+                <p role="alert" className="border border-[#b24d29]/30 px-3.5 py-2.5 text-sm text-[#b24d29]">
                   {error}
                 </p>
               )}

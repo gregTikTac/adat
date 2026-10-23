@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ru" className={`${body.variable} ${wordmark.variable} dark h-full antialiased`}>
-      <body className="min-h-full bg-[#315059] font-sans text-white">{children}</body>
+      <body className="min-h-full overflow-x-hidden bg-[#ebe0cc] font-sans text-[#443A2C]">{children}</body>
     </html>
   );
 }

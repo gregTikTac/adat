@@ -11,7 +11,7 @@ export function AdatMark({ className = "h-12 w-auto" }: { className?: string }) 
       className={className}
       initial={{ clipPath: "inset(0 0 100% 0)", opacity: 0.4 }}
       animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }}
-      transition={{ duration: 1.15, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
     />
   );
 }

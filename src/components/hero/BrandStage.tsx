@@ -1,60 +1,89 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion, useMotionValueEvent, type MotionValue } from "motion/react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import type { Destination } from "@/data/destinations";
-import { skyState } from "@/lib/sun";
 
-const PLATES: Record<string, { src: string; alt: string }> = {
-  sulak: { src: "/brand/gunib-eagle.jpg", alt: "Горы Гуниба, гравюра" },
-  derbent: { src: "/brand/gunib-fortress.jpg", alt: "Крепость в Гунибе" },
-  gunib: { src: "/brand/gunib-village.jpg", alt: "Аул в горах Гуниба" },
-  khunzakh: { src: "/brand/gunib-line.jpg", alt: "Горный рисунок Гуниба" },
-  goor: { src: "/brand/gunib-wall.jpg", alt: "Стена крепости в Гунибе" },
+type Plate = { src: string; alt: string; focus: string };
+
+/** Each route keeps its own plates. Paintings sit with the Gunib book plates that match that place. */
+const PLATES: Record<string, Plate[]> = {
+  sulak: [
+    { src: "/brand/sulak-canyon.jpg", alt: "Сулакский каньон", focus: "object-[70%_40%]" },
+    { src: "/brand/sulak-river.jpg", alt: "Река в Сулакском каньоне", focus: "object-center" },
+  ],
+  derbent: [
+    { src: "/brand/derbent-engraving.png", alt: "Цитадель Дербента", focus: "object-[58%_32%]" },
+  ],
+  gunib: [
+    { src: "/brand/gunib-aivazovsky.jpg", alt: "Аул Гуниб", focus: "object-[56%_40%]" },
+    { src: "/brand/gunib-village.jpg", alt: "Аул в горах Гуниба", focus: "object-[68%_28%]" },
+    { src: "/brand/gunib-eagle.jpg", alt: "Горы Гуниба и орёл", focus: "object-[70%_26%]" },
+    { src: "/brand/gunib-fortress.jpg", alt: "Крепость Гуниба", focus: "object-[64%_32%]" },
+  ],
+  khunzakh: [
+    { src: "/brand/gunib-line.jpg", alt: "Горный рисунок для плато", focus: "object-[64%_34%]" },
+  ],
+  goor: [
+    { src: "/brand/goor-tower.jpg", alt: "Башня на кромке обрыва", focus: "object-[40%_42%]" },
+    { src: "/brand/gunib-wall.jpg", alt: "Стена над ущельем", focus: "object-[66%_30%]" },
+  ],
 };
 
-function washFor(alt: number) {
-  if (alt < -2) return "rgba(49, 80, 89, 0.42)";
-  if (alt < 3) return "rgba(178, 77, 41, 0.18)";
-  if (alt < 10) return "rgba(178, 77, 41, 0.08)";
-  return "transparent";
-}
+const HOLD_MS = 12000;
 
-export function BrandStage({
-  dest,
-  hour,
-  doy,
-}: {
-  dest: Destination;
-  hour: MotionValue<number>;
-  doy: number;
-}) {
-  const plate = PLATES[dest.id] ?? PLATES.gunib;
-  const [wash, setWash] = useState(() => washFor(skyState(dest, doy, hour.get(), 800).alt));
+export function BrandStage({ dest }: { dest: Destination }) {
+  const plates = PLATES[dest.id] ?? PLATES.gunib;
+  const [frame, setFrame] = useState(0);
+  const [opened, setOpened] = useState(false);
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 800], [0, reduce ? 0 : 72]);
 
-  useMotionValueEvent(hour, "change", (h) => {
-    setWash(washFor(skyState(dest, doy, h, 800).alt));
-  });
+  useEffect(() => {
+    const timer = window.setTimeout(() => setOpened(true), 1100);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    setFrame(0);
+    if (plates.length < 2 || reduce) return;
+    const id = window.setInterval(() => {
+      setFrame((n) => (n + 1) % plates.length);
+    }, HOLD_MS);
+    return () => window.clearInterval(id);
+  }, [dest.id, plates, reduce]);
+
+  const plate = plates[frame % plates.length];
+  const reveal = !opened && !reduce;
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#ebe0cc]" aria-hidden>
-      <div className="absolute inset-y-0 right-0 w-full overflow-hidden lg:w-[74%]">
+      <motion.div style={{ y }} className="absolute inset-y-0 right-0 w-full overflow-hidden lg:w-[78%]">
         <AnimatePresence mode="sync">
           <motion.img
-            key={plate.src}
+            key={`${dest.id}-${plate.src}`}
             src={plate.src}
             alt=""
-            initial={{ opacity: 0, scale: 1.06 }}
-            animate={{ opacity: 1, scale: 1.12 }}
+            initial={
+              reveal
+                ? { clipPath: "inset(12% 8% 16% 20%)", opacity: 0.35, scale: 1.02 }
+                : { opacity: 0, scale: 1.03 }
+            }
+            animate={{ clipPath: "inset(0% 0% 0% 0%)", opacity: 1, scale: reduce ? 1 : 1.06 }}
             exit={{ opacity: 0 }}
-            transition={{ opacity: { duration: 1.05, ease: "easeInOut" }, scale: { duration: 22, ease: "linear" } }}
-            className="absolute inset-0 h-full w-full object-cover object-[68%_28%]"
+            transition={{
+              clipPath: { duration: 1.05, ease: [0.16, 1, 0.3, 1] },
+              opacity: { duration: 0.9, ease: "easeInOut" },
+              scale: { duration: reduce ? 0.4 : HOLD_MS / 1000, ease: "linear" },
+            }}
+            className={`absolute inset-0 h-full w-full object-cover ${plate.focus}`}
           />
         </AnimatePresence>
-        <div className="absolute inset-0 transition-colors duration-700" style={{ background: wash }} />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-r from-[#ebe0cc] from-[18%] via-[#ebe0cc]/88 via-[42%] to-transparent to-[70%] max-lg:from-[8%] max-lg:via-[28%]" />
-      <div className="absolute inset-x-0 bottom-0 h-[38%] bg-gradient-to-t from-[#ebe0cc] via-[#ebe0cc]/75 to-transparent" />
+      </motion.div>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#ebe0cc] from-[12%] via-[#ebe0cc]/92 via-[38%] to-transparent to-[70%] max-lg:from-[#ebe0cc]/95 max-lg:via-[#ebe0cc]/55 max-lg:to-[#ebe0cc]/10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#ebe0cc] via-[#ebe0cc]/80 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[#ebe0cc] via-[#ebe0cc]/75 to-transparent lg:h-[18%] lg:via-[#ebe0cc]/40" />
     </div>
   );
 }

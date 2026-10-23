@@ -7,8 +7,11 @@ export const brand = {
   descriptor: "Туроператор гостеприимства",
   phone: "8 800 511-41-80",
   phoneHref: "tel:+78005114180",
+  address: "Махачкала, ТЦ «Времена года», 13, офис 2",
+  site: "https://adat-travel.ru",
+  siteLabel: "adat-travel.ru",
   nav: [
-    { label: "Маршруты", href: "#destinations" },
+    { label: "Маршруты", href: "#routes" },
     { label: "Туры", href: "#tours" },
     { label: "О компании", href: "#about" },
     { label: "Контакты", href: "#contacts" },
