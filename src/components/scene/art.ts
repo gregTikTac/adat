@@ -205,3 +205,54 @@ export function boat(kind: "dhoni" | "longtail" | "ferry", x: number, y: number,
   const funnel = `M${p(x + 4 * s, y - 48 * s)}V${n1(y - 66 * s)}H${n1(x + 14 * s)}V${n1(y - 48 * s)}Z`;
   return `${hull}${deck1}${deck2}${funnel}`;
 }
+
+/** Battered stone tower with a flat crenellated crown. Wide shaft, not a spire. */
+export function watchtower(x: number, base: number, h: number, w: number) {
+  const crown = base - h;
+  const inset = w * 0.06;
+  const shaft = `M${p(x - w / 2, base)}L${p(x - w / 2 + inset, crown)}H${n1(x + w / 2 - inset)}L${p(x + w / 2, base)}Z`;
+  const span = w - inset * 2;
+  const n = w > 46 ? 5 : 3;
+  const slot = span / n;
+  const merlonH = Math.max(14, w * 0.42);
+  let merlons = "";
+  for (let i = 0; i < n; i += 2) {
+    const mx = x - w / 2 + inset + i * slot;
+    merlons += `M${p(mx, crown)}V${n1(crown - merlonH)}H${n1(mx + slot * 0.78)}V${n1(crown)}Z`;
+  }
+  return shaft + merlons;
+}
+
+/** Long curtain wall between two points. */
+export function curtainWall(x0: number, x1: number, base: number, h: number) {
+  return `M${p(x0, base)}V${n1(base - h)}H${n1(x1)}V${n1(base)}Z`;
+}
+
+/** Smooth sand dune. Crest is the high point; the shape closes along the foot. */
+export function dune(x0: number, x1: number, foot: number, crestX: number, crestY: number) {
+  const rise = foot - crestY;
+  const pts: Pt[] = [
+    [x0, foot],
+    [x0 + (crestX - x0) * 0.42, foot - rise * 0.22],
+    [crestX - (crestX - x0) * 0.12, crestY + rise * 0.08],
+    [crestX, crestY],
+    [crestX + (x1 - crestX) * 0.28, crestY + rise * 0.42],
+    [x1, foot],
+  ];
+  return `${smooth(pts, false, 0.55)}Z`;
+}
+
+/** Narrow falling ribbon, wider at the lip and at the plunge pool. */
+export function waterfall(x: number, y0: number, y1: number, w: number) {
+  return `M${p(x - w * 0.55, y0)}L${p(x - w * 0.28, y0 + (y1 - y0) * 0.45)}L${p(x - w * 0.7, y1)}H${n1(x + w * 0.55)}L${p(x + w * 0.22, y0 + (y1 - y0) * 0.45)}L${p(x + w * 0.45, y0)}Z`;
+}
+
+/** One soaring eagle: shallow chevron wings, the vignette from the brand book. (x, y) is the body. */
+export function eagle(x: number, y: number, s: number) {
+  const wingL = `M${p(x - 2 * s, y)}C${p(x - 22 * s, y - 14 * s)} ${p(x - 52 * s, y - 26 * s)} ${p(x - 86 * s, y - 6 * s)}C${p(x - 52 * s, y + 2 * s)} ${p(x - 20 * s, y + 4 * s)} ${p(x, y + 2 * s)}Z`;
+  const wingR = `M${p(x + 2 * s, y - 1 * s)}C${p(x + 28 * s, y - 18 * s)} ${p(x + 58 * s, y - 16 * s)} ${p(x + 92 * s, y + 2 * s)}C${p(x + 58 * s, y + 8 * s)} ${p(x + 26 * s, y + 6 * s)} ${p(x + 2 * s, y + 2 * s)}Z`;
+  const body = `M${p(x - 8 * s, y + 1 * s)}Q${p(x + 4 * s, y - 7 * s)} ${p(x + 20 * s, y)}Q${p(x + 6 * s, y + 6 * s)} ${p(x - 8 * s, y + 1 * s)}Z`;
+  const tail = `M${p(x - 6 * s, y + 2 * s)}L${p(x - 18 * s, y + 14 * s)}L${p(x - 4 * s, y + 6 * s)}L${p(x + 6 * s, y + 13 * s)}L${p(x + 4 * s, y + 2 * s)}Z`;
+  const head = `M${p(x + 16 * s, y - 1 * s)}L${p(x + 30 * s, y - 3 * s)}L${p(x + 18 * s, y + 3 * s)}Z`;
+  return `${wingL}${wingR}${body}${tail}${head}`;
+}

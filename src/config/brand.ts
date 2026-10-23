@@ -1,24 +1,24 @@
 /**
- * Everything brand-specific lives here and in the `--brand-*` variables
- * in `src/app/globals.css`. Swap these when the brand book arrives.
+ * Brand tokens live here and in the `--brand-*` variables in `src/app/globals.css`.
+ * Source: brand book «АДАТ версия 5» — tour-operator line, not the restaurant.
  */
 export const brand = {
-  name: "MERIDIAN",
-  descriptor: "Авторские путешествия",
-  phone: "+7 (900) 000-00-00",
-  phoneHref: "tel:+79000000000",
+  name: "АДАТ",
+  descriptor: "Туроператор гостеприимства",
+  phone: "8 800 511-41-80",
+  phoneHref: "tel:+78005114180",
   nav: [
-    { label: "Направления", href: "#destinations" },
+    { label: "Маршруты", href: "#destinations" },
     { label: "Туры", href: "#tours" },
     { label: "О компании", href: "#about" },
     { label: "Контакты", href: "#contacts" },
   ],
   hero: {
-    eyebrow: "Туроператор премиальных путешествий",
-    headline: ["Лучший свет", "в каждой точке мира"],
-    lead: "Подбираем направление, сезон и даже час света, чтобы поездка выглядела так, как вы её себе представляли.",
+    eyebrow: "Экскурсии и туры по Дагестану",
+    headline: ["Исследователи", "традиций"],
+    lead: "Встречаем в Махачкале и ведём по каньонам, крепостям и аулам. Свет, сезон и темп дня подбираем так, чтобы край открылся не открыткой, а местом, в котором хочется быть.",
     cta: "Подобрать тур",
-    secondaryCta: "Все направления",
+    secondaryCta: "Все маршруты",
   },
-  origin: { name: "Москва", lat: 55.7558, lon: 37.6173 },
+  origin: { name: "Махачкала", lat: 42.9849, lon: 47.5047 },
 } as const;

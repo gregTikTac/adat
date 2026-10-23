@@ -1,514 +1,306 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { SceneId } from "@/data/destinations";
-import {
-  r1,
-  boat,
-  dome,
-  karst,
-  minaret,
-  palm,
-  poly,
-  ridge,
-  ridgeLine,
-  ridgeY,
-  rng,
-  villa,
-} from "./art";
+import { curtainWall, dune, eagle, poly, ridge, ridgeLine, smooth, waterfall, watchtower, type Pt } from "./art";
 
 const H = 600;
 
 const fill = (name: string): CSSProperties => ({ fill: `var(--${name})` });
 
-function Sea({ children }: { children?: ReactNode }) {
-  const r = rng(77);
-  const lines: ReactNode[] = [];
-  for (let i = 0; i < 46; i++) {
-    const t = i / 45;
-    const y = r1(H + 6 + t ** 1.6 * 380);
-    const len = r1(40 + r() * 220 * (0.4 + t));
-    const x = r1(r() * 1600 - 60);
-    lines.push(
-      <rect
-        key={i}
-        x={x}
-        y={y}
-        width={len}
-        height={r1(0.8 + t * 1.4)}
-        rx={1}
-        style={{ ...fill("hl"), opacity: r1((0.05 + r() * 0.12) * 10) / 10 }}
-      />,
-    );
+function line(d: string, opacity = 0.28) {
+  return <path d={d} fill="none" stroke="var(--hl)" strokeWidth={1.15} opacity={opacity} />;
+}
+
+function strata(seed: number, base: number, from: number, to: number, amp = 8) {
+  return ridgeLine({ seed, base, amp, wavelength: 180, octaves: 2, from, to, step: 16 });
+}
+
+/* ------------------------------------------------------------------ Sulak */
+/* Gorge from the rim. Walls overlap under a narrow river, so the cut reads as water, not sky. */
+
+function banks(pts: Pt[], widths: number[]) {
+  const left: Pt[] = [];
+  const right: Pt[] = [];
+  for (let i = 0; i < pts.length; i++) {
+    const prev = pts[Math.max(0, i - 1)];
+    const next = pts[Math.min(pts.length - 1, i + 1)];
+    let dx = next[0] - prev[0];
+    let dy = next[1] - prev[1];
+    const len = Math.hypot(dx, dy) || 1;
+    dx /= len;
+    dy /= len;
+    const w = widths[i];
+    left.push([pts[i][0] - dy * w, pts[i][1] + dx * w] as Pt);
+    right.push([pts[i][0] + dy * w, pts[i][1] - dx * w] as Pt);
   }
-  return (
-    <g>
-      <rect x={-40} y={H} width={1680} height={500} fill="url(#sea-grad)" />
-      {children}
-      <g>{lines}</g>
-    </g>
-  );
+  return { left, right };
 }
 
-function Glitter() {
-  const r = rng(5);
-  const bars: ReactNode[] = [];
-  for (let i = 0; i < 34; i++) {
-    const t = i / 33;
-    const y = r1(H + 5 + t ** 1.5 * 340);
-    const w = r1((10 + t * 190) * (0.45 + r() * 0.75));
-    bars.push(
-      <rect
-        key={i}
-        className="shimmer"
-        x={-w / 2}
-        y={y}
-        width={w}
-        height={r1(1.4 + t * 2.4)}
-        rx={1.5}
-        style={{ animationDelay: `${(r() * 4).toFixed(1)}s`, animationDuration: `${(2.6 + r() * 2.6).toFixed(1)}s` }}
-      />,
-    );
+const sulak = (() => {
+  const y0 = 250;
+  const y1 = 1040;
+  const center: Pt[] = [];
+  for (let y = y0; y <= y1; y += 14) {
+    const t = (y - y0) / (y1 - y0);
+    const x = 1012 + Math.sin(t * Math.PI * 1.55) * 30 + Math.sin(t * Math.PI * 3.1) * 10;
+    center.push([Math.round(x * 10) / 10, y]);
   }
-  return (
-    <g style={{ transform: "translateX(var(--refl-x))", opacity: "var(--refl-o)", fill: "var(--refl-color)", mixBlendMode: "screen" }}>
-      <rect x={-3} y={H} width={6} height={400} fill="url(#refl-core)" />
-      {bars}
-    </g>
-  );
-}
-
-function Reflection({ href }: { href: string }) {
-  return (
-    <g mask="url(#refl-mask)" filter="url(#blur-soft)" opacity={0.42}>
-      <use href={href} transform={`translate(0 ${H * 2}) scale(1 -1)`} />
-    </g>
-  );
-}
-
-function Foreground({ side, seed }: { side: "left" | "right"; seed: number }) {
-  const g = side === "left" ? palm(10, 1000, 880, 230, seed) : palm(1600, 1020, 760, -250, seed);
-  return (
-    <g style={fill("l4")}>
-      <path d={g.trunk} />
-      <path d={g.fronds} />
-    </g>
-  );
-}
-
-/* ----------------------------------------------------------------- Maldives */
-
-const mal = (() => {
-  const islet = (x0: number, x1: number, hgt: number) => {
-    const xm = (x0 + x1) / 2;
-    return `M${x0} ${H + 6}Q${xm} ${H - hgt} ${x1} ${H + 6}Z`;
-  };
-  const far = [islet(190, 360, 9), islet(520, 610, 6), islet(1180, 1330, 10), islet(1420, 1520, 7)].join("");
-  const farPalms = [
-    ...[250, 270, 300, 326].map((x, i) => palm(x, H - 4, 34 + i * 6, (i % 2 ? 1 : -1) * 5, 10 + i)),
-    ...[1230, 1255, 1290].map((x, i) => palm(x, H - 5, 40 + i * 5, (i % 2 ? 1 : -1) * 6, 30 + i)),
-  ];
-
-  const nearIslet = `M-40 ${H + 36}Q120 ${H + 10} 260 ${H + 24}Q380 ${H + 30} 470 ${H + 40}V${H + 60}H-40Z`;
-  const nearPalms = [
-    palm(80, H + 24, 190, 28, 51),
-    palm(150, H + 20, 150, -22, 52),
-    palm(220, H + 26, 210, 34, 53),
-    palm(300, H + 30, 120, -18, 54),
-  ];
-
-  const p1 = { x: 780, y: 616 };
-  const p0 = { x: 1640, y: 760 };
-  const ts = [0.04, 0.13, 0.24, 0.37, 0.52, 0.69, 0.88];
-  let villas = "";
-  for (const t of ts) {
-    const e = t ** 1.15;
-    const x = p1.x + (p0.x - p1.x) * e;
-    const y = p1.y + (p0.y - p1.y) * e;
-    villas += villa(x, y, 0.16 + e * 1.0);
-  }
-  const jetty = poly([
-    [p1.x, p1.y - 1],
-    [p0.x, p0.y - 14],
-    [p0.x, p0.y - 6],
-    [p1.x, p1.y + 0.5],
-  ]);
-  return { far, farPalms, nearIslet, nearPalms, villas, jetty };
-})();
-
-export function MaldivesScene() {
-  return (
-    <g>
-      <g id="mal-far" style={fill("l0")}>
-        <path d={mal.far} />
-        {mal.farPalms.map((p, i) => (
-          <g key={i}>
-            <path d={p.trunk} />
-            <path d={p.fronds} />
-          </g>
-        ))}
-      </g>
-      <rect x={-40} y={H - 150} width={1680} height={170} fill="url(#mist-grad)" style={{ opacity: "var(--mist-o)" }} />
-      <Sea>
-        <Glitter />
-      </Sea>
-      <g style={fill("l2")}>
-        <path d={mal.nearIslet} />
-        {mal.nearPalms.map((p, i) => (
-          <g key={i}>
-            <path d={p.trunk} />
-            <path d={p.fronds} />
-          </g>
-        ))}
-      </g>
-      <g style={fill("l3")}>
-        <path d={mal.jetty} />
-        <path d={mal.villas} />
-      </g>
-      <g className="drift-slow" style={fill("l3")}>
-        <path d={boat("dhoni", 1010, H + 40, 0.55)} />
-      </g>
-      <Foreground side="left" seed={91} />
-      <Foreground side="right" seed={92} />
-    </g>
-  );
-}
-
-/* -------------------------------------------------------------------- Dubai */
-
-type Building = { x: number; w: number; top: number };
-
-function buildSkyline(seed: number, from: number, to: number, wMin: number, wMax: number, height: (x: number) => number, base = H + 4) {
-  const r = rng(seed);
-  const parts: string[] = [];
-  const windows: string[] = [];
-  const buildings: Building[] = [];
-  let x = from;
-  while (x < to) {
-    const w = wMin + r() * (wMax - wMin);
-    const h = Math.max(8, height(x) * (0.55 + r() * 0.75));
-    buildings.push({ x, w, top: base - h });
-    parts.push(`M${x.toFixed(1)} ${base}V${(base - h).toFixed(1)}H${(x + w).toFixed(1)}V${base}Z`);
-    if (r() < 0.32) {
-      const sw = w * (0.45 + r() * 0.2);
-      const sh = 6 + r() * 14;
-      parts.push(`M${(x + (w - sw) / 2).toFixed(1)} ${(base - h).toFixed(1)}v${-sh.toFixed(1)}h${sw.toFixed(1)}v${sh.toFixed(1)}Z`);
-    }
-    if (r() < 0.14) {
-      parts.push(`M${(x + w / 2 - 0.9).toFixed(1)} ${(base - h).toFixed(1)}v-${(14 + r() * 24).toFixed(1)}h1.8v${(14).toFixed(1)}Z`);
-    }
-    if (h > 34) {
-      const rows = Math.min(11, Math.floor((h - 12) / 9));
-      for (let row = 0; row < rows; row++) {
-        for (let cx = x + 3; cx < x + w - 3; cx += 5) {
-          if (r() < 0.2) windows.push(`M${cx.toFixed(1)} ${(base - 10 - row * 9).toFixed(1)}h2.2v3.2h-2.2Z`);
-        }
-      }
-    }
-    x += w * (0.82 + r() * 0.3);
-  }
-  return { path: parts.join(""), windows: windows.join(""), buildings };
-}
-
-const dub = (() => {
-  const farFn = (x: number) => 26 + 44 * Math.exp(-(((x - 860) / 380) ** 2));
-  const midFn = (x: number) => 30 + 130 * Math.exp(-(((x - 900) / 300) ** 2));
-  const far = buildSkyline(3, 120, 1500, 12, 26, farFn);
-  const mid = buildSkyline(8, 560, 1260, 16, 34, midFn);
-  const marina = buildSkyline(12, 1180, 1500, 14, 26, (x) => 40 + 60 * Math.exp(-(((x - 1330) / 120) ** 2)));
-
-  const cx = 860;
-  const tiers: [number, number][] = [
-    [20, 0],
-    [20, -34],
-    [16, -34],
-    [16, -104],
-    [12, -104],
-    [12, -178],
-    [8.5, -178],
-    [8.5, -232],
-    [5.5, -232],
-    [5.5, -284],
-    [2.6, -284],
-    [1.1, -346],
-  ];
-  const rightSide = tiers.map(([dx, dy]) => `${(cx + dx).toFixed(1)} ${(H + 4 + dy).toFixed(1)}`);
-  const leftSide = [...tiers].reverse().map(([dx, dy]) => `${(cx - dx).toFixed(1)} ${(H + 4 + dy).toFixed(1)}`);
-  const burj = `M${rightSide.join("L")}L${leftSide.join("L")}Z`;
-
-  const ax = 450;
-  const arab = `M${ax - 13} ${H + 4}V${H - 138}Q${ax + 52} ${H - 90} ${ax + 26} ${H + 4}Z M${ax - 14.5} ${H - 138}V${H - 204}H${ax - 12.5}V${H - 138}Z M${ax - 74} ${H + 6}Q${ax} ${H - 6} ${ax + 74} ${H + 6}Z`;
-
-  const taperL = (x: number) => -170 * Math.min(1, Math.max(0, (x - 120) / 420)) ** 1.6;
-  const taperR = (x: number) => -190 * Math.min(1, Math.max(0, (1500 - x) / 420)) ** 1.6;
-  const dL = { seed: 21, base: 700, amp: 80, wavelength: 700, octaves: 3, from: -40, to: 600, shape: taperL };
-  const dR = { seed: 22, base: 712, amp: 90, wavelength: 760, octaves: 3, from: 1000, to: 1640, shape: taperR };
-  const dunesL = ridge({ ...dL, bottom: 1040 });
-  const dunesR = ridge({ ...dR, bottom: 1040 });
-  const duneLineL = ridgeLine(dL);
-  const duneLineR = ridgeLine(dR);
-  return { far, mid, marina, burj, arab, dunesL, dunesR, duneLineL, duneLineR };
-})();
-
-export function DubaiScene() {
-  return (
-    <g>
-      <g id="dub-sky">
-        <g style={fill("l0")}>
-          <path d={dub.far.path} />
-        </g>
-        <g style={fill("l1")}>
-          <path d={dub.mid.path} />
-          <path d={dub.marina.path} />
-          <path d={dub.arab} />
-        </g>
-        <g style={fill("l2")}>
-          <path d={dub.burj} />
-        </g>
-      </g>
-      <path d={dub.far.windows} style={{ ...fill("window"), opacity: "calc(var(--lights-o) * 0.55)" }} />
-      <path d={dub.mid.windows} style={{ ...fill("window"), opacity: "calc(var(--lights-o) * 0.9)" }} />
-      <path d={dub.marina.windows} style={{ ...fill("window"), opacity: "calc(var(--lights-o) * 0.9)" }} />
-      <rect x={-40} y={H - 150} width={1680} height={170} fill="url(#mist-grad)" style={{ opacity: "var(--mist-o)" }} />
-      <Sea>
-        <Reflection href="#dub-sky" />
-        <Glitter />
-      </Sea>
-      <g className="drift-slow" style={fill("l3")}>
-        <path d={boat("dhoni", 700, H + 46, 0.5)} />
-      </g>
-      <g>
-        <path d={dub.dunesL} style={fill("l4")} />
-        <path d={dub.dunesR} style={fill("l4")} />
-        <path d={dub.duneLineL} fill="none" strokeWidth={1.6} style={{ stroke: "var(--hl)", opacity: 0.35 }} />
-        <path d={dub.duneLineR} fill="none" strokeWidth={1.6} style={{ stroke: "var(--hl)", opacity: 0.35 }} />
-      </g>
-      <Foreground side="right" seed={93} />
-    </g>
-  );
-}
-
-/* ----------------------------------------------------------------- Istanbul */
-
-const ist = (() => {
-  const hillY = ridgeY({ seed: 40, base: 604, amp: 46, wavelength: 700, octaves: 3 });
-  const hills = ridge({ seed: 40, base: 604, amp: 46, wavelength: 700, octaves: 3, bottom: H + 6 });
-
-  const r = rng(61);
-  const houses = (from: number, to: number, base: (x: number) => number, hMin: number, hMax: number) => {
-    let d = "";
-    let x = from;
-    while (x < to) {
-      const w = 8 + r() * 18;
-      const h = hMin + r() * (hMax - hMin);
-      const b = base(x);
-      d += `M${x.toFixed(1)} ${(b + 3).toFixed(1)}V${(b - h).toFixed(1)}`;
-      if (r() < 0.4) d += `L${(x + w / 2).toFixed(1)} ${(b - h - 5 - r() * 4).toFixed(1)}L${(x + w).toFixed(1)} ${(b - h).toFixed(1)}`;
-      else d += `H${(x + w).toFixed(1)}`;
-      d += `V${(b + 3).toFixed(1)}Z`;
-      x += w * (0.9 + r() * 0.2);
-    }
-    return d;
-  };
-
-  const rowHill = houses(-20, 1620, (x) => hillY(x) + 4, 6, 20);
-  const rowWater = houses(300, 1520, () => H + 3, 8, 30);
-
-  const blue = [
-    dome(600, 530, 52, 42),
-    dome(548, 551, 28, 24),
-    dome(652, 551, 28, 24),
-    dome(600, 556, 34, 20),
-    `M520 590V530H680V590Z`,
-    minaret(498, 590, 168, 8),
-    minaret(530, 590, 150, 7),
-    minaret(670, 590, 150, 7),
-    minaret(702, 590, 168, 8),
-  ].join("");
-
-  const hagia = [
-    dome(872, 520, 54, 44),
-    dome(812, 548, 24, 22),
-    dome(932, 548, 24, 22),
-    `M814 590V520H930V590Z`,
-    `M796 590V552H814V590Z M930 590V552H948V590Z`,
-    minaret(790, 590, 184, 8.5),
-    minaret(954, 590, 184, 8.5),
-  ].join("");
-
-  const galata = `M1236 590V452H1264V590Z M1228 454H1272V446H1228Z M1234 446V428H1266V446Z M1233 428L1250 384L1267 428Z`;
-
-  const hillBase = ridge({ seed: 40, base: 604, amp: 46, wavelength: 700, octaves: 3, bottom: H + 6, from: 440, to: 1100 });
-  return { hills, rowHill, rowWater, blue, hagia, galata, hillBase };
-})();
-
-export function IstanbulScene() {
-  return (
-    <g>
-      <g id="ist-sky">
-        <g style={fill("l0")}>
-          <path d={ist.hills} />
-        </g>
-        <g style={fill("l1")}>
-          <path d={ist.rowHill} />
-        </g>
-        <g style={fill("l2")}>
-          <path d={ist.hillBase} />
-          <path d={ist.blue} />
-          <path d={ist.hagia} />
-          <path d={ist.galata} />
-        </g>
-        <g style={fill("l3")}>
-          <path d={ist.rowWater} />
-        </g>
-      </g>
-      <rect x={-40} y={H - 150} width={1680} height={170} fill="url(#mist-grad)" style={{ opacity: "var(--mist-o)" }} />
-      <Sea>
-        <Reflection href="#ist-sky" />
-        <Glitter />
-      </Sea>
-      <g className="drift-mid" style={fill("l3")}>
-        <path d={boat("ferry", 520, H + 48, 0.62)} />
-      </g>
-      <g className="drift-slow" style={fill("l4")}>
-        <path d={boat("ferry", 1260, H + 92, 1.05)} />
-      </g>
-      <g className="gulls" style={{ stroke: "var(--l4)" }} fill="none" strokeWidth={2.2} strokeLinecap="round">
-        <path d="M980 290q9 -9 18 0q9 -9 18 0" />
-        <path d="M1040 330q7 -7 14 0q7 -7 14 0" />
-        <path d="M920 340q6 -6 12 0q6 -6 12 0" />
-      </g>
-      <Foreground side="left" seed={94} />
-    </g>
-  );
-}
-
-/* --------------------------------------------------------------------- Bali */
-
-function meru(x: number, y: number, s: number) {
-  let d = `M${x - 14 * s} ${y}V${y - 12 * s}H${x + 14 * s}V${y}Z`;
-  const tiers = 5;
-  for (let k = 0; k < tiers; k++) {
-    const w = (34 - k * 5.2) * s;
-    const top = y - 12 * s - k * 13 * s;
-    d += `M${x - w} ${top}L${x - w * 0.62} ${top - 10 * s}H${x + w * 0.62}L${x + w} ${top}Z`;
-    d += `M${x - w * 0.5} ${top}V${top + 2.6 * s}H${x + w * 0.5}V${top}Z`;
-  }
-  const apex = y - 12 * s - tiers * 13 * s;
-  d += `M${x - 1 * s} ${apex + 2 * s}L${x} ${apex - 22 * s}L${x + 1 * s} ${apex + 2 * s}Z`;
-  return d;
-}
-
-const bali = (() => {
-  const volcano = (cx: number, w: number, hgt: number, seed: number) => {
-    const f = ridgeY({ seed, base: 584, amp: 14, wavelength: 90, octaves: 3, shape: (x) => hgt * Math.max(0, 1 - Math.abs(x - cx) / w) ** 1.55 });
-    const pts: string[] = [];
-    for (let x = cx - w; x <= cx + w; x += 6) pts.push(`${x.toFixed(1)} ${f(x).toFixed(1)}`);
-    return `M${cx - w} 600L${pts.join("L")}L${cx + w} 600Z`;
-  };
-  const farVolc = volcano(1010, 520, 330, 70) + volcano(420, 330, 150, 71);
-  const hills = ridge({ seed: 72, base: 612, amp: 70, wavelength: 520, octaves: 4, bottom: 1040 });
-  const bands = Array.from({ length: 5 }, (_, j) => {
-    const opts = { seed: 80 + j, base: 632 + j * 44, amp: 26 + j * 4, wavelength: 480 + j * 80, octaves: 3 };
-    return { fill: ridge({ ...opts, bottom: 1040 }), line: ridgeLine(opts), shade: j };
+  const widths = center.map(([, y]) => {
+    const t = (y - y0) / (y1 - y0);
+    return 8 + t * 20;
   });
-  const palms = [
-    palm(240, 690, 290, -38, 101),
-    palm(300, 700, 220, 24, 102),
-    palm(1330, 676, 330, 52, 103),
-    palm(1410, 700, 250, -30, 104),
-    palm(1480, 690, 190, 22, 105),
-  ];
-  return { farVolc, hills, bands, palms, meru: meru(610, 628, 1.1), meru2: meru(1100, 608, 0.62) };
+  const { left, right } = banks(center, widths);
+  const bedW = widths.map((w) => w + 70);
+  const bedBanks = banks(center, bedW);
+  const tuck = (bank: Pt[], toward: Pt[], dist: number): Pt[] =>
+    bank.map((p, i) => {
+      const dx = toward[i][0] - p[0];
+      const dy = toward[i][1] - p[1];
+      const len = Math.hypot(dx, dy) || 1;
+      return [p[0] + (dx / len) * dist, p[1] + (dy / len) * dist] as Pt;
+    });
+  const leftEdge = tuck(left, center, 16);
+  const rightEdge = tuck(right, center, 16);
+  const leftWall = poly([
+    [-80, 1040],
+    [-80, 500],
+    [140, 450],
+    [380, 350],
+    [620, 268],
+    [820, 214],
+    [940, 206],
+    [990, 232],
+    ...leftEdge,
+  ]);
+  const rightWall = poly([
+    ...rightEdge,
+    [1700, 1040],
+    [1700, 520],
+    [1580, 430],
+    [1420, 280],
+    [1260, 176],
+    [1120, 188],
+    [1048, 230],
+  ]);
+  const rightLedge = poly([
+    [1200, 470],
+    [1680, 430],
+    [1680, 500],
+    [1260, 545],
+  ]);
+  const rightLedge2 = poly([
+    [1240, 620],
+    [1680, 590],
+    [1680, 655],
+    [1300, 690],
+  ]);
+  const leftNear = poly([
+    [-80, 1040],
+    [40, 1040],
+    [300, 760],
+    [520, 640],
+    [680, 670],
+    [620, 860],
+    [740, 1040],
+  ]);
+  return {
+    leftWall,
+    rightWall,
+    rightLedge,
+    rightLedge2,
+    leftNear,
+    bed: smooth([...bedBanks.left, ...bedBanks.right.reverse()], true, 0.35),
+    river: smooth([...left, ...right.reverse()], true, 0.35),
+    wake: smooth(center, false, 0.35),
+    dune: dune(1460, 1760, 660, 1630, 470),
+  };
 })();
 
-export function BaliScene() {
+function SulakScene() {
   return (
     <g>
-      <g style={fill("l0")}>
-        <path d={bali.farVolc} />
-      </g>
-      <rect x={-40} y={H - 220} width={1680} height={240} fill="url(#mist-grad)" style={{ opacity: "var(--mist-o)" }} />
-      <g style={fill("l1")}>
-        <path d={bali.hills} />
-        <path d={bali.meru2} />
-      </g>
-      <g className="mist-drift" style={{ ...fill("mist"), opacity: 0.22 }}>
-        <ellipse cx={420} cy={H + 6} rx={420} ry={26} />
-        <ellipse cx={1180} cy={H + 22} rx={520} ry={30} />
-      </g>
-      {bali.bands.map((b, j) => (
-        <g key={j}>
-          <path d={b.fill} fill={`url(#bali-band-${j})`} />
-          <path d={b.line} fill="none" strokeWidth={1.5} style={{ stroke: "var(--hl)", opacity: 0.26 - j * 0.03 }} />
-          {j === 1 && <path d={bali.meru} style={fill("l3")} />}
-        </g>
-      ))}
-      <g style={fill("l4")}>
-        {bali.palms.map((p, i) => (
-          <g key={i}>
-            <path d={p.trunk} />
-            <path d={p.fronds} />
-          </g>
-        ))}
-      </g>
-      <Foreground side="right" seed={95} />
-      <Foreground side="left" seed={96} />
+      <path d={sulak.bed} style={fill("l3")} />
+      <path d={sulak.leftWall} style={fill("l3")} />
+      <path d={sulak.rightWall} style={fill("l2")} />
+      <path d={sulak.rightLedge} style={fill("l3")} />
+      <path d={sulak.rightLedge2} style={fill("l4")} />
+      {line(strata(3, 250, 1160, 1560, 3), 0.45)}
+      {line(strata(4, 310, 1180, 1600, 3), 0.36)}
+      {line(strata(6, 375, 1200, 1620, 3), 0.3)}
+      {line(strata(8, 560, 1280, 1640, 3), 0.28)}
+      <path d={sulak.leftNear} style={fill("l4")} />
+      {line(strata(12, 280, 180, 860, 3), 0.2)}
+      {line(strata(13, 360, 140, 800, 3), 0.16)}
+      <path d={sulak.river} fill="url(#sea-grad)" />
+      <path d={sulak.wake} fill="none" stroke="var(--hl)" strokeWidth={1.25} opacity={0.7} />
+      <path d={sulak.dune} style={fill("l0")} />
     </g>
   );
 }
 
-/* ------------------------------------------------------------------- Phuket */
+/* ---------------------------------------------------------------- Derbent */
+/* Naryn-Kala: a long crenellated wall on a ridge, square towers, a thin Caspian band. */
 
-const phu = (() => {
-  const farKarst = [
-    karst(180, H + 2, 120, 118, 1),
-    karst(300, H + 2, 90, 92, 2),
-    karst(1360, H + 2, 130, 130, 3),
-    karst(1480, H + 2, 90, 86, 4),
-  ].join("");
-  const midKarst = [
-    karst(540, H + 6, 140, 170, 5),
-    karst(660, H + 6, 90, 110, 6),
-    karst(1240, H + 6, 150, 200, 7),
-  ].join("");
-  const bigKarst = [karst(340, H + 12, 190, 250, 8), karst(1010, H + 14, 230, 300, 9), karst(1150, H + 14, 120, 170, 10)].join("");
-  return { farKarst, midKarst, bigKarst };
+const derbent = (() => {
+  const rock = poly([
+    [-60, H],
+    [-60, 560],
+    [180, 530],
+    [460, 470],
+    [760, 390],
+    [1040, 330],
+    [1280, 360],
+    [1500, 430],
+    [1660, 480],
+    [1660, H],
+  ]);
+  const base = 392;
+  const towers = [760, 900, 1220, 1360]
+    .map((x, i) => watchtower(x, base + 12, 64 + (i % 2) * 28, 36 + (i % 2) * 8))
+    .join("");
+  const keep = watchtower(1060, base - 2, 132, 78);
+  const wall = curtainWall(740, 1420, base + 14, 28);
+  return { rock, walls: wall + towers + keep };
 })();
 
-export function PhuketScene() {
+function DerbentScene() {
   return (
     <g>
-      <g id="phu-sky">
-        <g style={fill("l0")}>
-          <path d={phu.farKarst} />
-        </g>
-        <g style={fill("l1")}>
-          <path d={phu.midKarst} />
-        </g>
-        <rect x={-40} y={H - 170} width={1680} height={190} fill="url(#mist-grad)" style={{ opacity: "var(--mist-o)" }} />
-        <g style={fill("l2")}>
-          <path d={phu.bigKarst} />
-        </g>
+      <path d={ridge({ seed: 31, base: 575, amp: 14, wavelength: 640, octaves: 2, bottom: H })} style={fill("l0")} />
+      <path d={derbent.rock} style={fill("l2")} />
+      {line(strata(33, 430, 700, 1480, 5))}
+      <path d={derbent.walls} style={fill("l4")} />
+      <rect x={-60} y={H - 8} width={1720} height={52} fill="url(#sea-grad)" />
+    </g>
+  );
+}
+
+/* ------------------------------------------------------------------ Gunib */
+/* Table plateau, a sheer drop into the gorge, one eagle. */
+
+const gunib = (() => {
+  const plateau = poly([
+    [680, 1040],
+    [700, 430],
+    [760, 318],
+    [1040, 300],
+    [1180, 328],
+    [1210, 470],
+    [1235, 1040],
+  ]);
+  const farSide = poly([
+    [1360, 1040],
+    [1325, 560],
+    [1400, 390],
+    [1560, 340],
+    [1660, 360],
+    [1660, 1040],
+  ]);
+  return { plateau, farSide };
+})();
+
+function GunibScene() {
+  return (
+    <g>
+      <path d={ridge({ seed: 41, base: 575, amp: 18, wavelength: 520, octaves: 2, bottom: H })} style={fill("l0")} />
+      <path d={gunib.farSide} style={fill("l2")} />
+      <path d={gunib.plateau} style={fill("l3")} />
+      {line(strata(44, 330, 760, 1160, 4))}
+      {line(strata(45, 520, 760, 1160, 8), 0.18)}
+      <path d={eagle(1040, 228, 1.15)} style={fill("l4")} />
+    </g>
+  );
+}
+
+/* --------------------------------------------------------------- Khunzakh */
+/* Empty sky, a plateau lip, Tobot as one narrow fall. */
+
+const khunzakh = (() => {
+  const lip = poly([
+    [700, 1040],
+    [720, 500],
+    [860, 390],
+    [1000, 348],
+    [1048, 372],
+    [1072, 1040],
+  ]);
+  const farRim = poly([
+    [1210, 1040],
+    [1184, 530],
+    [1260, 410],
+    [1400, 370],
+    [1460, 1040],
+  ]);
+  return { lip, farRim, fall: waterfall(1128, 358, 700, 28) };
+})();
+
+function KhunzakhScene() {
+  return (
+    <g>
+      <path d={ridge({ seed: 51, base: 586, amp: 10, wavelength: 760, octaves: 2, bottom: H })} style={fill("l0")} />
+      <path d={khunzakh.farRim} style={fill("l1")} />
+      <path d={khunzakh.lip} style={fill("l3")} />
+      {line(strata(52, 360, 900, 1140, 3))}
+      <path d={khunzakh.fall} style={fill("hl")} />
+      <ellipse cx={1140} cy={688} rx={78} ry={16} style={{ ...fill("mist"), opacity: "calc(var(--mist-o) * 0.55)" }} />
+      <g fill="none" stroke="var(--hl)" strokeWidth={1.2} opacity={0.32} strokeLinecap="round">
+        <path d="M220 240h80M280 268h46" />
+        <path d="M470 190h60" />
       </g>
-      <Sea>
-        <Reflection href="#phu-sky" />
-        <Glitter />
-      </Sea>
-      <g className="drift-mid bob" style={fill("l3")}>
-        <path d={boat("longtail", 640, H + 64, 1.05)} />
+    </g>
+  );
+}
+
+/* -------------------------------------------------------------------- Goor */
+/* Watchtowers on the lip, a tight gorge beside them. */
+
+const goor = (() => {
+  const lipY = 458;
+  const cliff = poly([
+    [-40, 1040],
+    [40, 640],
+    [260, 560],
+    [500, lipY + 48],
+    [680, lipY],
+    [1160, lipY],
+    [1210, 720],
+    [1240, 1040],
+  ]);
+  const wall = poly([
+    [1340, 1040],
+    [1310, 540],
+    [1360, 320],
+    [1460, 240],
+    [1540, 300],
+    [1540, 1040],
+  ]);
+  const sunk = lipY + 14;
+  const towers = [
+    watchtower(760, sunk, 112, 50),
+    watchtower(860, sunk, 158, 58),
+    watchtower(980, sunk, 186, 66),
+    watchtower(1090, sunk, 128, 52),
+  ].join("");
+  return { cliff, wall, towers };
+})();
+
+function GoorScene() {
+  return (
+    <g>
+      <path d={ridge({ seed: 61, base: 568, amp: 16, wavelength: 480, octaves: 2, bottom: H })} style={fill("l0")} />
+      <path d={goor.wall} style={fill("l2")} />
+      {line(strata(62, 340, 1220, 1400, 8))}
+      <g style={fill("l3")}>
+        <path d={goor.cliff} />
+        <path d={goor.towers} />
       </g>
-      <g className="drift-slow" style={fill("l4")}>
-        <path d={boat("longtail", 1250, H + 120, 1.7)} />
-      </g>
-      <Foreground side="left" seed={97} />
-      <Foreground side="right" seed={98} />
     </g>
   );
 }
 
 export const scenes: Record<SceneId, () => ReactNode> = {
-  maldives: MaldivesScene,
-  dubai: DubaiScene,
-  bali: BaliScene,
-  istanbul: IstanbulScene,
-  phuket: PhuketScene,
+  sulak: SulakScene,
+  derbent: DerbentScene,
+  gunib: GunibScene,
+  khunzakh: KhunzakhScene,
+  goor: GoorScene,
 };

@@ -93,9 +93,9 @@ export function LeadDialog({ open, onOpenChange, defaultDestination }: Props) {
         ) : (
           <>
             <DialogHeader className="gap-2">
-              <DialogTitle className="font-display text-4xl font-light leading-none">Подберём тур</DialogTitle>
+              <DialogTitle className="font-heading text-4xl font-light leading-none">Подберём тур</DialogTitle>
               <DialogDescription className="text-white/65">
-                Расскажите, куда хочется, и мы вернёмся с вариантами. Без обязательств.
+                Выберите маршрут по Дагестану — вернёмся с датами, форматом группы и бюджетом. Без обязательств.
               </DialogDescription>
             </DialogHeader>
 

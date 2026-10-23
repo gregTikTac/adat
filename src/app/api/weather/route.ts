@@ -15,12 +15,15 @@ export async function GET(request: Request) {
       `https://api.open-meteo.com/v1/forecast?latitude=${dest.lat}&longitude=${dest.lon}&current=temperature_2m`,
       opts,
     ).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))));
-    const sea = fetch(
-      `https://marine-api.open-meteo.com/v1/marine?latitude=${dest.lat}&longitude=${dest.lon}&current=sea_surface_temperature`,
-      opts,
-    )
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
+    const sea =
+      dest.fallback.sea === null
+        ? Promise.resolve(null)
+        : fetch(
+            `https://marine-api.open-meteo.com/v1/marine?latitude=${dest.lat}&longitude=${dest.lon}&current=sea_surface_temperature`,
+            opts,
+          )
+            .then((r) => (r.ok ? r.json() : null))
+            .catch(() => null);
 
     const [a, s] = await Promise.all([air, sea]);
     const airTemp = a?.current?.temperature_2m;

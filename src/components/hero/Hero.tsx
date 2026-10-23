@@ -19,6 +19,7 @@ import {
 } from "@/lib/sun";
 import { DayDial, type Preset } from "./DayDial";
 import { LeadDialog } from "./LeadDialog";
+import { RouteFrames } from "./RouteFrames";
 
 const INTRO_START = 4.9;
 const EASE = [0.65, 0, 0.35, 1] as const;
@@ -46,7 +47,7 @@ function localHourNow(tz: number) {
 function RouteArc({ from, to, km, flight }: { from: string; to: string; km: number; flight: string }) {
   return (
     <div>
-      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">Маршрут</p>
+      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">Из Махачкалы</p>
       <div className="relative mt-2 h-12 w-full max-w-[250px]">
         <svg viewBox="0 0 250 48" className="absolute inset-0 h-full w-full overflow-visible">
           <path d="M6 42Q125 -22 244 42" fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="1" strokeDasharray="2 5" />
@@ -67,7 +68,7 @@ function RouteArc({ from, to, km, flight }: { from: string; to: string; km: numb
         </span>
         <span className="text-xs text-white/55 tabular-nums">{km.toLocaleString("ru-RU")} км</span>
       </p>
-      <p className="text-xs text-white/55">В пути {flight.replace("≈ ", "≈ ")}</p>
+      <p className="text-xs text-white/55">В пути {flight} на авто</p>
     </div>
   );
 }
@@ -218,6 +219,7 @@ export function Hero() {
   const lines = brand.hero.headline;
 
   return (
+    <>
     <section id="top" className="relative isolate flex h-svh min-h-[780px] flex-col overflow-hidden text-white">
       <SkyStage dest={dest} hour={hour} doy={doy} />
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/50 via-black/10 to-transparent" />
@@ -267,7 +269,7 @@ export function Hero() {
             {brand.hero.eyebrow}
           </motion.p>
 
-          <h1 className="font-display text-[clamp(2.9rem,7.6vw,7.4rem)] font-light leading-[0.94] tracking-[-0.01em] text-balance drop-shadow-[0_2px_30px_rgba(0,0,0,0.25)]">
+          <h1 className="font-heading text-[clamp(2.9rem,7.6vw,7.4rem)] font-light leading-[0.94] tracking-[-0.01em] text-balance drop-shadow-[0_2px_30px_rgba(0,0,0,0.25)]">
             {lines.map((line, i) => (
               <span key={line} className="block overflow-hidden pb-[0.08em] lg:whitespace-nowrap">
                 <motion.span
@@ -314,12 +316,13 @@ export function Hero() {
           </motion.div>
         </div>
 
+        <div id="destinations" className="lg:w-[22rem] lg:shrink-0">
         <motion.nav
           aria-label="Направления"
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, delay: 1.1 }}
-          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none [text-shadow:0_1px_18px_rgba(0,0,0,0.55)] lg:mx-0 lg:w-[19rem] lg:shrink-0 lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
+          className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none [text-shadow:0_1px_18px_rgba(0,0,0,0.55)] lg:mx-0 lg:w-full lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
         >
           {destinations.map((d, i) => {
             const active = i === idx;
@@ -369,6 +372,8 @@ export function Hero() {
             </AnimatePresence>
           </div>
         </motion.nav>
+        <RouteFrames dest={dest} />
+        </div>
       </div>
 
       <motion.div
@@ -432,5 +437,6 @@ export function Hero() {
 
       <LeadDialog open={leadOpen} onOpenChange={setLeadOpen} defaultDestination={dest.name} />
     </section>
+    </>
   );
 }
