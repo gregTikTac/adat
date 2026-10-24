@@ -18,7 +18,7 @@ export function Story() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.08} className="grid grid-cols-[1.4fr_0.8fr] items-end gap-3 sm:gap-5">
+        <Reveal delay={0.08} className="grid grid-cols-2 gap-3 sm:gap-5">
           <figure className="overflow-hidden">
             <img
               src={canyon.src}
@@ -28,11 +28,11 @@ export function Story() {
               decoding="async"
             />
           </figure>
-          <figure className="mb-8 overflow-hidden sm:mb-16">
+          <figure className="overflow-hidden">
             <img
               src={walls.src}
               alt={walls.alt}
-              className="aspect-[3/4] w-full object-cover"
+              className="aspect-[4/5] w-full object-cover"
               loading="lazy"
               decoding="async"
             />
