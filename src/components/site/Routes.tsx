@@ -6,6 +6,7 @@ import { destinations } from "@/data/destinations";
 import { placePhotos } from "@/data/places";
 import { AnimatedHeading } from "./AnimatedHeading";
 import { GlowImage } from "./GlowImage";
+import { goToPlace } from "@/lib/goToPlace";
 import { Reveal } from "./Reveal";
 
 export function Routes() {
@@ -55,7 +56,14 @@ export function Routes() {
                   id={`route-${d.id}`}
                   className="scroll-mt-8 border-t border-[#443A2C]/15 py-10 lg:min-h-[70vh] lg:py-20"
                 >
-                  <a href={`#tour-${d.id}`} className="group block">
+                  <a
+                    href={`#tour-${d.id}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goToPlace(d.id);
+                    }}
+                    className="group block"
+                  >
                     <p className="font-display text-sm tracking-[0.28em] text-[#315059]">
                       {String(i + 1).padStart(2, "0")}
                       <span className="text-[#443A2C]/35"> / 05</span>

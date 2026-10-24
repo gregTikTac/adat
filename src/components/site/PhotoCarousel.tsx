@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { EASE_OUT, EASE_WIPE, wipeHidden, wipeShown, type SwapMode, type WipeDir } from "@/lib/wipe";
+import { EASE_OUT, EASE_SOFT, SWAP_IN, SWAP_OUT, type WipeDir } from "@/lib/wipe";
 
 type Photo = { src: string; alt: string };
 
@@ -14,35 +14,29 @@ type Props = {
   photos: Photo[];
   /** Size of the frame. Every photo fills it, so all slides have the same size. */
   className?: string;
-  /** How the first photo of a newly chosen place comes in. */
-  swapMode?: SwapMode;
+  /** Direction the first photo of a newly chosen place drifts in from. */
   swapDir?: WipeDir;
 };
 
 /**
- * Photo slider. Arrows and swipes sweep the next photo in along a diagonal;
- * a new place arrives with the same movement as the background (sweep after a click,
- * a slow dissolve after a mouse hover). Edges glow, the picture zooms on hover.
+ * Photo slider. Every change, whether by arrows, a swipe or a new place, is a slow dissolve
+ * with a small drift and a settling zoom. Edges glow, the picture zooms on hover.
  */
-export function PhotoCarousel({ id, photos, className, swapMode = "wipe", swapDir = 1 }: Props) {
+export function PhotoCarousel({ id, photos, className, swapDir = 1 }: Props) {
   const reduce = useReducedMotion();
-  const [state, setState] = useState<{ id: string; index: number; dir: WipeDir; manual: boolean }>({
+  const [state, setState] = useState<{ id: string; index: number; dir: WipeDir | null }>({
     id,
     index: 0,
-    dir: 1,
-    manual: false,
+    dir: null,
   });
   const same = state.id === id;
   const index = same ? state.index : 0;
-  // Arrows always sweep; a fresh place follows the mode chosen by the page.
-  const manual = same ? state.manual : false;
-  const mode: SwapMode = manual ? "wipe" : swapMode;
-  const dir: WipeDir = manual && same ? state.dir : swapDir;
-  const wipe = mode === "wipe" && !reduce;
+  const dir: WipeDir = same && state.dir !== null ? state.dir : swapDir;
   const photo = photos[index];
+  const drift = reduce ? 0 : dir * 4;
 
   const go = (step: 1 | -1) =>
-    setState({ id, index: (index + step + photos.length) % photos.length, dir: step, manual: true });
+    setState({ id, index: (index + step + photos.length) % photos.length, dir: step });
 
   return (
     <motion.div
@@ -57,10 +51,10 @@ export function PhotoCarousel({ id, photos, className, swapMode = "wipe", swapDi
         <motion.div
           key={`${id}-${index}`}
           className="absolute inset-0"
-          initial={wipe ? { clipPath: wipeHidden(dir) } : { opacity: 0, clipPath: wipeShown(dir) }}
-          animate={wipe ? { clipPath: wipeShown(dir) } : { opacity: 1 }}
-          exit={{ opacity: 0.999, transition: { duration: wipe ? 1.15 : 1.4, ease: "linear" } }}
-          transition={wipe ? { duration: 1.05, ease: EASE_WIPE } : { duration: reduce ? 0.3 : 1.4, ease: "easeInOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0.999, transition: { duration: reduce ? 0.3 : SWAP_OUT, ease: "linear" } }}
+          transition={{ duration: reduce ? 0.3 : SWAP_IN, ease: EASE_SOFT }}
         >
           <div className="h-full w-full transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.14]">
             <motion.img
@@ -69,9 +63,9 @@ export function PhotoCarousel({ id, photos, className, swapMode = "wipe", swapDi
               draggable={false}
               loading="lazy"
               decoding="async"
-              initial={reduce ? false : { scale: wipe ? 1.2 : 1.08 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 1.8, ease: EASE_OUT }}
+              initial={reduce ? false : { scale: 1.16, x: `${drift}%` }}
+              animate={{ scale: 1, x: "0%" }}
+              transition={{ duration: 2.4, ease: EASE_OUT }}
               className="h-full w-full object-cover"
             />
           </div>
@@ -95,7 +89,7 @@ export function PhotoCarousel({ id, photos, className, swapMode = "wipe", swapDi
             <motion.span
               className="absolute inset-y-0 left-0 bg-[#f7ce5e]"
               animate={{ width: `${((index + 1) / photos.length) * 100}%` }}
-              transition={{ duration: 0.6, ease: EASE_OUT }}
+              transition={{ duration: 0.9, ease: EASE_OUT }}
             />
           </span>
           <span className="text-xs tabular-nums tracking-widest">{photos.length}</span>

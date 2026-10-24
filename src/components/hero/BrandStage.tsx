@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import type { Destination } from "@/data/destinations";
-import { EASE_OUT, EASE_WIPE, wipeHidden, wipeShown, type SwapMode, type WipeDir } from "@/lib/wipe";
+import { EASE_OUT, EASE_SOFT, SWAP_IN, SWAP_OUT, type WipeDir } from "@/lib/wipe";
 
 type Plate = { src: string; alt: string; focus: string };
 
@@ -33,16 +33,17 @@ const PLATES: Record<string, Plate[]> = {
 
 const HOLD_MS = 12000;
 
-type Props = { dest: Destination; dir: WipeDir; mode: SwapMode; ready: boolean };
+type Props = { dest: Destination; dir: WipeDir; ready: boolean };
 
 /**
- * Hero background. A click wipes the new picture in along a diagonal; hovering with a mouse
- * only dissolves it in, slowly and without any sweep. Pictures are decoded in advance.
+ * Hero background. A new picture dissolves in over the old one while it drifts a little
+ * along the diagonal and settles from a slight zoom. The same movement is used on a phone
+ * and on a computer. Pictures are decoded in advance so a swap never waits for the network.
  *
  * On a phone the picture sits in its own band at the top and melts into the paper below,
  * so the headline and the buttons always lie on a plain light surface and stay readable.
  */
-export function BrandStage({ dest, dir, mode, ready }: Props) {
+export function BrandStage({ dest, dir, ready }: Props) {
   const plates = PLATES[dest.id] ?? PLATES.gunib;
   const [slide, setSlide] = useState({ id: dest.id, n: 0 });
   const frame = slide.id === dest.id ? slide.n : 0;
@@ -72,7 +73,7 @@ export function BrandStage({ dest, dir, mode, ready }: Props) {
   }, [dest.id, plates, reduce]);
 
   const plate = plates[frame % plates.length];
-  const wipe = mode === "wipe" && !reduce;
+  const drift = reduce ? 0 : dir * 2;
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#ebe0cc]" aria-hidden>
@@ -84,22 +85,18 @@ export function BrandStage({ dest, dir, mode, ready }: Props) {
           <motion.div
             key={`${dest.id}-${frame}`}
             className="absolute inset-0"
-            initial={wipe ? { clipPath: wipeHidden(dir) } : { opacity: 0, clipPath: wipeShown(dir) }}
-            animate={ready ? (wipe ? { clipPath: wipeShown(dir) } : { opacity: 1 }) : undefined}
-            exit={{ opacity: 0.999, transition: { duration: wipe ? 1.25 : 1.4, ease: "linear" } }}
-            transition={
-              wipe
-                ? { duration: 1.15, ease: EASE_WIPE }
-                : { duration: reduce ? 0.4 : 1.4, ease: "easeInOut" }
-            }
+            initial={{ opacity: 0 }}
+            animate={ready ? { opacity: 1 } : undefined}
+            exit={{ opacity: 0.999, transition: { duration: reduce ? 0.4 : SWAP_OUT, ease: "linear" } }}
+            transition={{ duration: reduce ? 0.4 : SWAP_IN, ease: EASE_SOFT }}
           >
             <motion.img
               src={plate.src}
               alt=""
               draggable={false}
-              initial={reduce ? false : { scale: wipe ? 1.22 : 1.08 }}
-              animate={ready ? { scale: reduce ? 1 : 1.06 } : undefined}
-              transition={{ duration: reduce ? 0.4 : wipe ? 2.4 : 2.8, ease: EASE_OUT }}
+              initial={reduce ? false : { scale: 1.14, x: `${drift}%`, y: `${drift}%` }}
+              animate={ready ? { scale: reduce ? 1 : 1.06, x: "0%", y: "0%" } : undefined}
+              transition={{ duration: reduce ? 0.4 : 3, ease: EASE_OUT }}
               className={`h-full w-full object-cover max-lg:object-center ${plate.focus}`}
             />
           </motion.div>

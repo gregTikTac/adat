@@ -238,6 +238,13 @@ html {
     inset 0 0 52px 6px rgba(255, 224, 140, 0.55);
 }
 
+/* A place block rising into view after a jump from the hero: soft diagonal arrival. */
+@keyframes arrive {
+  from { opacity: 0.2; transform: translate3d(32px, 44px, 0); }
+  to { opacity: 1; transform: none; }
+}
+.arrive { animation: arrive 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both; }
+
 /* Intro: the ADAT mark floats in the middle, then flies up to the header. */
 @keyframes intro-halo {
   0%, 100% { opacity: 0.35; transform: scale(0.92); }

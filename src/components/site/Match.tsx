@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { destinations, type SceneId } from "@/data/destinations";
 import { Button } from "@/components/ui/button";
 import { AnimatedHeading } from "./AnimatedHeading";
+import { goToPlace } from "@/lib/goToPlace";
 import { Reveal } from "./Reveal";
 
 const interests: { id: string; label: string; places: SceneId[] }[] = [
@@ -151,7 +152,14 @@ export function Match() {
             <ul className="mt-4 divide-y divide-[#443A2C]/15">
               {matches.map((d) => (
                 <li key={d.id} className="flex items-baseline justify-between gap-4 py-3">
-                  <a href={`#tour-${d.id}`} className="font-display text-3xl leading-none hover:text-[#315059]">
+                  <a
+                    href={`#tour-${d.id}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goToPlace(d.id);
+                    }}
+                    className="font-display text-3xl leading-none hover:text-[#315059]"
+                  >
                     {d.name}
                   </a>
                   <span className="text-sm text-[#443A2C]/60">{d.flight}</span>

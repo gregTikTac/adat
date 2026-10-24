@@ -5,7 +5,8 @@ import { motion } from "motion/react";
 import { ArrowRight, ArrowUpRight, Phone } from "lucide-react";
 import { brand } from "@/config/brand";
 import { destinations } from "@/data/destinations";
-import type { SwapMode, WipeDir } from "@/lib/wipe";
+import type { WipeDir } from "@/lib/wipe";
+import { goToPlace } from "@/lib/goToPlace";
 import { AnimatedHeading } from "@/components/site/AnimatedHeading";
 import { AdatMark } from "./AdatMark";
 import { BrandStage } from "./BrandStage";
@@ -18,25 +19,28 @@ import { MobileNav } from "./MobileNav";
 export function Hero() {
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState<WipeDir>(1);
-  const [mode, setMode] = useState<SwapMode>("wipe");
   const [leadOpen, setLeadOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const dest = destinations[idx];
   const lines = brand.hero.headline;
 
-  /** `swap` is "fade" for a mouse hover (quiet dissolve) and "wipe" for a click, tap or key. */
-  const choose = (next: number, swap: SwapMode = "wipe") => {
+  const choose = (next: number) => {
     if (next === idx) return;
     setDir(next > idx ? 1 : -1);
-    setMode(swap);
     setIdx(next);
+  };
+
+  /** A hover or the first tap selects a place; pressing the selected place opens its programme. */
+  const press = (i: number) => {
+    if (i === idx) goToPlace(destinations[i].id);
+    else choose(i);
   };
 
   return (
     <section id="top" className="relative isolate z-0 flex min-h-svh flex-col overflow-hidden text-[#443A2C] lg:sticky lg:top-0 lg:h-svh lg:min-h-[640px]">
       {!introDone && <IntroMark targetId="adat-mark-slot" onFly={() => setReady(true)} onDone={() => setIntroDone(true)} />}
-      <BrandStage dest={dest} dir={dir} mode={mode} ready={ready} />
+      <BrandStage dest={dest} dir={dir} ready={ready} />
 
       <motion.header
         initial={{ opacity: 0 }}
@@ -151,7 +155,6 @@ export function Hero() {
               const step = event.key === "ArrowDown" || event.key === "ArrowRight" ? 1 : -1;
               const next = (idx + step + destinations.length) % destinations.length;
               setDir(step === 1 ? 1 : -1);
-              setMode("wipe");
               setIdx(next);
             }}
             className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none lg:mx-0 lg:w-full lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
@@ -162,10 +165,12 @@ export function Hero() {
                 <button
                   key={d.id}
                   type="button"
-                  onClick={() => choose(i, "wipe")}
-                  onFocus={() => choose(i, "wipe")}
+                  onClick={() => press(i)}
+                  onFocus={(event) => {
+                    if (event.currentTarget.matches(":focus-visible")) choose(i);
+                  }}
                   onPointerEnter={(event) => {
-                    if (event.pointerType === "mouse") choose(i, "fade");
+                    if (event.pointerType === "mouse") choose(i);
                   }}
                   aria-current={active ? "true" : undefined}
                   className={`group flex shrink-0 items-center gap-3 bg-transparent px-2 py-3 lg:w-full lg:justify-end lg:px-0 lg:py-2.5 ${
@@ -192,7 +197,7 @@ export function Hero() {
             })}
           </motion.nav>
 
-          <HeroPlacePanel dest={dest} dir={dir} mode={mode} />
+          <HeroPlacePanel dest={dest} dir={dir} />
         </div>
       </div>
 

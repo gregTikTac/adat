@@ -5,30 +5,23 @@ import { ArrowRight } from "lucide-react";
 import type { Destination } from "@/data/destinations";
 import { placePhotos } from "@/data/places";
 import { PhotoCarousel } from "@/components/site/PhotoCarousel";
-import { EASE_OUT, type SwapMode, type WipeDir } from "@/lib/wipe";
+import { goToPlace } from "@/lib/goToPlace";
+import { EASE_OUT, type WipeDir } from "@/lib/wipe";
 
-type Props = { dest: Destination; dir: WipeDir; mode: SwapMode };
+type Props = { dest: Destination; dir: WipeDir };
 
 /**
  * Photo slider and caption of the chosen place, right on the main screen.
- * After a click the caption slides along the diagonal of the background;
- * after a mouse hover it only fades.
+ * The caption drifts along the same diagonal as the background and fades.
  */
-export function HeroPlacePanel({ dest, dir, mode }: Props) {
+export function HeroPlacePanel({ dest, dir }: Props) {
   const reduce = useReducedMotion();
-  const slide = mode === "wipe" && !reduce;
-  const dx = slide ? dir * 28 : 0;
-  const dy = slide ? dir * 16 : 0;
+  const dx = reduce ? 0 : dir * 24;
+  const dy = reduce ? 0 : dir * 14;
 
   return (
     <div className="mt-4 lg:mt-5">
-      <PhotoCarousel
-        id={dest.id}
-        photos={placePhotos[dest.id]}
-        swapMode={mode}
-        swapDir={dir}
-        className="aspect-[16/10] w-full"
-      />
+      <PhotoCarousel id={dest.id} photos={placePhotos[dest.id]} swapDir={dir} className="aspect-[16/10] w-full" />
 
       <div className="relative mt-4 min-h-[8.5rem] overflow-hidden lg:min-h-[9.5rem] lg:text-right">
         <AnimatePresence mode="wait" initial={false}>
@@ -36,14 +29,18 @@ export function HeroPlacePanel({ dest, dir, mode }: Props) {
             key={dest.id}
             initial={{ opacity: 0, x: dx, y: dy }}
             animate={{ opacity: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, x: -dx, y: -dy, transition: { duration: 0.28, ease: "easeIn" } }}
-            transition={{ duration: slide ? 0.7 : 0.9, ease: EASE_OUT }}
+            exit={{ opacity: 0, x: -dx, y: -dy, transition: { duration: 0.35, ease: "easeIn" } }}
+            transition={{ duration: 0.9, ease: EASE_OUT }}
             className="legible text-sm leading-relaxed"
           >
             <span className="legible-brick mb-1 block text-xs uppercase tracking-[0.24em]">{dest.kicker}</span>
             {dest.blurb}
             <a
               href={`#tour-${dest.id}`}
+              onClick={(event) => {
+                event.preventDefault();
+                goToPlace(dest.id);
+              }}
               className="legible-sea group mt-1 flex min-h-11 items-center gap-2 text-sm font-medium lg:justify-end"
             >
               Программа дня · {dest.flight}
