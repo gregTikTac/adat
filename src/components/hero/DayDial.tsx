@@ -63,7 +63,7 @@ export function DayDial({
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-white/60">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/60">
           Сутки · {placeName}
           <span className="ml-2 hidden normal-case tracking-normal text-white/40 sm:inline">проведите по шкале</span>
         </p>
@@ -74,7 +74,7 @@ export function DayDial({
               type="button"
               onClick={() => onPreset(p)}
               aria-pressed={activePreset === p.id}
-              className={`shrink-0 rounded-full border px-3 py-1 text-xs transition-colors ${
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs transition-colors ${
                 activePreset === p.id
                   ? "border-brand bg-brand text-brand-ink"
                   : "border-white/20 text-white/75 hover:border-white/50 hover:text-white"
@@ -131,14 +131,14 @@ export function DayDial({
           aria-valuenow={Math.round((clock / 60) * 100) / 100}
           aria-valuetext={formatHour(clock / 60)}
           onKeyDown={onKeyDown}
-          className="absolute top-1/2 grid size-9 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-[#10151f] shadow-[0_6px_24px_rgba(0,0,0,0.45)] outline-none ring-offset-2 ring-offset-transparent focus-visible:ring-2 focus-visible:ring-brand"
+          className="absolute top-1/2 grid size-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-[#10151f] shadow-[0_6px_24px_rgba(0,0,0,0.45)] outline-none ring-offset-2 ring-offset-transparent focus-visible:ring-2 focus-visible:ring-brand"
           style={{ left }}
         >
           <Icon className="size-4" strokeWidth={2} />
         </motion.div>
       </div>
 
-      <div className="relative -mt-1 h-4 text-[11px] text-white/55">
+      <div className="relative -mt-1 h-4 text-xs text-white/55">
         <span className="absolute left-0 tabular-nums">00:00</span>
         <span className="absolute right-0 tabular-nums">24:00</span>
         {rise !== null && (

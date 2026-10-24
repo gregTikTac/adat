@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { destinations, type SceneId } from "@/data/destinations";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "./Reveal";
 
 const interests: { id: string; label: string; places: SceneId[] }[] = [
   { id: "water", label: "Каньон и вода", places: ["sulak"] },
@@ -37,7 +38,7 @@ function Chip({
       type="button"
       aria-pressed={pressed}
       onClick={onClick}
-      className={`border px-4 py-2 text-sm transition-colors ${
+      className={`border px-4 py-2.5 text-sm transition-all duration-200 hover:scale-[1.02] ${
         pressed ? "border-[#315059] bg-[#315059] text-[#ebe0cc]" : "border-[#443A2C]/25 text-[#443A2C] hover:border-[#315059]"
       }`}
     >
@@ -98,19 +99,21 @@ export function Match() {
   return (
     <section id="match" className="relative z-20 bg-[#f3eadc] text-[#443A2C]">
       <div className="mx-auto grid max-w-[1480px] gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-28">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.28em] text-[#315059]">Подбор</p>
-          <h2 className="mt-4 font-heading text-[clamp(2.2rem,4.4vw,3.8rem)] font-light leading-none">
-            Куда ехать <span className="italic text-[#b24d29]">сначала</span>
-          </h2>
-          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#443A2C]/75">
-            Выберите интерес. Справа появятся направления из этой страницы. Заявка записывается в прототип и не уходит менеджеру, пока не подключена CRM.
-          </p>
-        </div>
-
-        <form onSubmit={submit} className="grid gap-8">
+        <Reveal>
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Подбор</p>
+            <h2 className="mt-4 font-heading text-[clamp(2.2rem,4.4vw,3.8rem)] font-light leading-none">
+              Куда ехать <span className="italic text-[#b24d29]">сначала</span>
+            </h2>
+            <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#443A2C]/75">
+              Выберите интерес. Справа появятся направления из этой страницы. Заявка записывается в прототип и не уходит менеджеру, пока не подключена CRM.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={0.06}>
+          <form onSubmit={submit} className="grid gap-8">
           <fieldset>
-            <legend className="text-[11px] uppercase tracking-[0.2em] text-[#443A2C]/50">Интерес</legend>
+            <legend className="text-xs uppercase tracking-[0.2em] text-[#443A2C]/50">Интерес</legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {interests.map((item) => (
                 <Chip key={item.id} pressed={picked.includes(item.id)} onClick={() => toggle(item.id)}>
@@ -120,7 +123,7 @@ export function Match() {
             </div>
           </fieldset>
           <fieldset>
-            <legend className="text-[11px] uppercase tracking-[0.2em] text-[#443A2C]/50">Длительность</legend>
+            <legend className="text-xs uppercase tracking-[0.2em] text-[#443A2C]/50">Длительность</legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {lengths.map((item) => (
                 <Chip key={item.id} pressed={length === item.id} onClick={() => setLength(item.id)}>
@@ -130,7 +133,7 @@ export function Match() {
             </div>
           </fieldset>
           <fieldset>
-            <legend className="text-[11px] uppercase tracking-[0.2em] text-[#443A2C]/50">Формат</legend>
+            <legend className="text-xs uppercase tracking-[0.2em] text-[#443A2C]/50">Формат</legend>
             <div className="mt-3 flex flex-wrap gap-2">
               {formats.map((item) => (
                 <Chip key={item.id} pressed={format === item.id} onClick={() => setFormat(item.id)}>
@@ -141,7 +144,7 @@ export function Match() {
           </fieldset>
 
           <div className="border-t border-[#443A2C]/15 pt-6">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#b24d29]">Подходит</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#b24d29]">Подходит</p>
             <ul className="mt-4 divide-y divide-[#443A2C]/15">
               {matches.map((d) => (
                 <li key={d.id} className="flex items-baseline justify-between gap-4 py-3">
@@ -192,6 +195,7 @@ export function Match() {
             </Button>
           )}
         </form>
+      </Reveal>
       </div>
     </section>
   );

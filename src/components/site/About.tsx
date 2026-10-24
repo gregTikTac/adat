@@ -1,5 +1,6 @@
 import { placePhotos } from "@/data/places";
 import { Reveal } from "./Reveal";
+import { ParallaxImage } from "./ParallaxImage";
 
 export function About() {
   const tower = placePhotos.goor[0];
@@ -7,7 +8,7 @@ export function About() {
     <section id="about" className="relative z-20 bg-[#315059] text-[#ebe0cc]">
       <div className="mx-auto grid max-w-[1480px] items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:px-12 lg:py-28">
         <Reveal>
-          <p className="text-[11px] uppercase tracking-[0.28em] text-[#f7ce5e]">О компании</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-[#f7ce5e]">О компании</p>
           <h2 className="mt-4 font-heading text-[clamp(2.2rem,4.6vw,4.2rem)] font-light leading-[0.98]">
             Гостеприимство как <span className="italic text-[#f7ce5e]">маршрут</span>
           </h2>
@@ -21,8 +22,8 @@ export function About() {
           </div>
         </Reveal>
         <Reveal delay={0.08}>
-          <img src={tower.src} alt={tower.alt} className="aspect-[4/5] w-full object-cover" loading="lazy" decoding="async" />
-          <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-[#ebe0cc]/55">Гоор, сторожевые башни</p>
+          <ParallaxImage src={tower.src} alt={tower.alt} className="aspect-[4/5] w-full" />
+          <p className="mt-3 text-xs uppercase tracking-[0.2em] text-[#ebe0cc]/55">Гоор, сторожевые башни</p>
         </Reveal>
       </div>
     </section>

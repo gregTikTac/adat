@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { destinations } from "@/data/destinations";
 import { placePhotos } from "@/data/places";
+import { Reveal } from "./Reveal";
 
 export function Routes() {
   const [active, setActive] = useState(0);
@@ -34,7 +35,7 @@ export function Routes() {
   return (
     <section id="routes" className="relative z-20 bg-[#f3eadc] text-[#443A2C]">
       <div className="mx-auto max-w-[1480px] px-5 pt-16 sm:px-8 lg:px-12 lg:pt-24">
-        <p className="text-[11px] uppercase tracking-[0.28em] text-[#315059]">Пять направлений</p>
+        <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Пять направлений</p>
         <h2 className="mt-3 max-w-xl font-heading text-[clamp(2.2rem,4.5vw,4rem)] font-light leading-none">
           Маршруты из Махачкалы
         </h2>
@@ -45,32 +46,33 @@ export function Routes() {
           {destinations.map((d, i) => {
             const frame = placePhotos[d.id][0];
             return (
-              <article
-                key={d.id}
-                id={`route-${d.id}`}
-                className="scroll-mt-8 border-t border-[#443A2C]/15 py-10 lg:min-h-[70vh] lg:py-20"
-              >
-                <a href={`#tour-${d.id}`} className="group block">
-                  <p className="font-display text-sm tracking-[0.28em] text-[#315059]">
-                    {String(i + 1).padStart(2, "0")}
-                    <span className="text-[#443A2C]/35"> / 05</span>
-                  </p>
-                  <h3 className="mt-3 font-display text-[clamp(2.4rem,5vw,4.2rem)] leading-none transition-colors group-hover:text-[#315059]">
-                    {d.name}
-                  </h3>
-                  <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#443A2C]/75">{d.blurb}</p>
-                  <p className="mt-4 text-[11px] uppercase tracking-[0.22em] text-[#b24d29]">
-                    {d.flight} на авто · подробнее
-                  </p>
-                </a>
-                <img
-                  src={frame.src}
-                  alt={frame.alt}
-                  className="mt-6 aspect-[16/10] w-full object-cover lg:hidden"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </article>
+              <Reveal key={d.id} delay={i * 0.06}>
+                <article
+                  id={`route-${d.id}`}
+                  className="scroll-mt-8 border-t border-[#443A2C]/15 py-10 lg:min-h-[70vh] lg:py-20"
+                >
+                  <a href={`#tour-${d.id}`} className="group block">
+                    <p className="font-display text-sm tracking-[0.28em] text-[#315059]">
+                      {String(i + 1).padStart(2, "0")}
+                      <span className="text-[#443A2C]/35"> / 05</span>
+                    </p>
+                    <h3 className="mt-3 font-display text-[clamp(2.4rem,5vw,4.2rem)] leading-none transition-colors group-hover:text-[#315059]">
+                      {d.name}
+                    </h3>
+                    <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#443A2C]/75">{d.blurb}</p>
+                    <p className="mt-4 text-xs uppercase tracking-[0.22em] text-[#b24d29]">
+                      {d.flight} на авто · подробнее
+                    </p>
+                  </a>
+                  <img
+                    src={frame.src}
+                    alt={frame.alt}
+                    className="mt-6 aspect-[16/10] w-full object-cover lg:hidden"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </article>
+              </Reveal>
             );
           })}
         </div>

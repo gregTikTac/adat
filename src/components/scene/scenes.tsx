@@ -131,7 +131,9 @@ function SulakScene() {
       {line(strata(12, 280, 180, 860, 3), 0.2)}
       {line(strata(13, 360, 140, 800, 3), 0.16)}
       <path d={sulak.river} fill="url(#sea-grad)" />
-      <path d={sulak.wake} fill="none" stroke="var(--hl)" strokeWidth={1.25} opacity={0.7} />
+      <g className="shimmer">
+        <path d={sulak.wake} fill="none" stroke="var(--hl)" strokeWidth={1.25} opacity={0.7} />
+      </g>
       <path d={sulak.dune} style={fill("l0")} />
     </g>
   );
@@ -206,7 +208,7 @@ function GunibScene() {
       <path d={gunib.plateau} style={fill("l3")} />
       {line(strata(44, 330, 760, 1160, 4))}
       {line(strata(45, 520, 760, 1160, 8), 0.18)}
-      <path d={eagle(1040, 228, 1.15)} style={fill("l4")} />
+      <path d={eagle(1040, 228, 1.15)} className="drift-mid" style={fill("l4")} />
     </g>
   );
 }
@@ -240,8 +242,10 @@ function KhunzakhScene() {
       <path d={khunzakh.farRim} style={fill("l1")} />
       <path d={khunzakh.lip} style={fill("l3")} />
       {line(strata(52, 360, 900, 1140, 3))}
-      <path d={khunzakh.fall} style={fill("hl")} />
-      <ellipse cx={1140} cy={688} rx={78} ry={16} style={{ ...fill("mist"), opacity: "calc(var(--mist-o) * 0.55)" }} />
+      <g className="shimmer">
+        <path d={khunzakh.fall} style={fill("hl")} />
+      </g>
+      <ellipse cx={1140} cy={688} rx={78} ry={16} className="mist-drift" style={{ ...fill("mist"), opacity: "calc(var(--mist-o) * 0.55)" }} />
       <g fill="none" stroke="var(--hl)" strokeWidth={1.2} opacity={0.32} strokeLinecap="round">
         <path d="M220 240h80M280 268h46" />
         <path d="M470 190h60" />

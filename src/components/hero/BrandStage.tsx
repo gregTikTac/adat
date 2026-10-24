@@ -59,31 +59,31 @@ export function BrandStage({ dest }: { dest: Destination }) {
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#ebe0cc]" aria-hidden>
-      <motion.div style={{ y }} className="absolute inset-y-0 right-0 w-full overflow-hidden lg:w-[78%]">
+      <motion.div style={{ y }} className="absolute inset-x-0 top-0 h-[68%] overflow-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:w-[78%]">
         <AnimatePresence mode="sync">
           <motion.img
-            key={`${dest.id}-${plate.src}`}
+            key={`${dest.id}-${frame}-${plate.src}`}
             src={plate.src}
             alt=""
             initial={
               reveal
                 ? { clipPath: "inset(12% 8% 16% 20%)", opacity: 0.35, scale: 1.02 }
-                : { opacity: 0, scale: 1.03 }
+                : { opacity: 0, scale: 1 }
             }
-            animate={{ clipPath: "inset(0% 0% 0% 0%)", opacity: 1, scale: reduce ? 1 : 1.06 }}
+            animate={{ clipPath: "inset(0% 0% 0% 0%)", opacity: 1, scale: reduce ? 1 : 1.08 }}
             exit={{ opacity: 0 }}
             transition={{
               clipPath: { duration: 1.05, ease: [0.16, 1, 0.3, 1] },
-              opacity: { duration: 0.9, ease: "easeInOut" },
+              opacity: { duration: 1.2, ease: "easeInOut" },
               scale: { duration: reduce ? 0.4 : HOLD_MS / 1000, ease: "linear" },
             }}
-            className={`absolute inset-0 h-full w-full object-cover ${plate.focus}`}
+            className={`absolute inset-0 h-full w-full object-cover max-lg:object-center ${plate.focus}`}
           />
         </AnimatePresence>
       </motion.div>
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#ebe0cc] from-[12%] via-[#ebe0cc]/92 via-[38%] to-transparent to-[70%] max-lg:from-[#ebe0cc]/95 max-lg:via-[#ebe0cc]/55 max-lg:to-[#ebe0cc]/10" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#ebe0cc] via-[#ebe0cc]/80 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-[#ebe0cc] via-[#ebe0cc]/75 to-transparent lg:h-[18%] lg:via-[#ebe0cc]/40" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#ebe0cc] from-0% via-[#ebe0cc]/95 via-[45%] to-transparent to-[75%] max-lg:hidden" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#ebe0cc]/90 via-[#ebe0cc]/45 to-transparent lg:h-28 lg:from-[#ebe0cc] lg:via-[#ebe0cc]/80" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-[#ebe0cc] via-[#ebe0cc]/92 via-[55%] to-transparent lg:h-[18%] lg:via-[#ebe0cc]/40" />
     </div>
   );
 }
