@@ -214,3 +214,39 @@ html {
 
 .scrollbar-none { scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* Edge glow for photos: warm light along the border, brighter on hover. */
+.glow-frame {
+  box-shadow: 0 18px 40px -24px rgba(68, 58, 44, 0.45);
+  transition: box-shadow 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glow-frame:hover {
+  box-shadow:
+    0 0 0 1px rgba(247, 206, 94, 0.55),
+    0 0 34px 2px rgba(247, 206, 94, 0.38),
+    0 26px 48px -22px rgba(68, 58, 44, 0.5);
+}
+.glow-edge {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 244, 214, 0.5),
+    inset 0 0 26px 2px rgba(255, 233, 170, 0.34);
+  transition: box-shadow 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glow-frame:hover .glow-edge {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 244, 214, 0.85),
+    inset 0 0 52px 6px rgba(255, 224, 140, 0.55);
+}
+
+/* Intro: the ADAT mark floats in the middle, then flies up to the header. */
+@keyframes intro-halo {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 0.8; transform: scale(1.08); }
+}
+.intro-halo { animation: intro-halo 2.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-halo { animation: none; }
+  .glow-frame:hover .glow-edge { box-shadow: inset 0 0 0 1px rgba(255, 244, 214, 0.5), inset 0 0 26px 2px rgba(255, 233, 170, 0.34); }
+}
+

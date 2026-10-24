@@ -1,34 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { ArrowRight, ArrowUpRight, Phone } from "lucide-react";
 import { brand } from "@/config/brand";
 import { destinations } from "@/data/destinations";
+import type { WipeDir } from "@/lib/wipe";
+import { AnimatedHeading } from "@/components/site/AnimatedHeading";
 import { AdatMark } from "./AdatMark";
 import { BrandStage } from "./BrandStage";
 import { Button } from "@/components/ui/button";
+import { HeroPlacePanel } from "./HeroPlacePanel";
+import { IntroMark } from "./IntroMark";
 import { LeadDialog } from "./LeadDialog";
 import { MobileNav } from "./MobileNav";
 
 export function Hero() {
   const [idx, setIdx] = useState(0);
+  const [dir, setDir] = useState<WipeDir>(1);
   const [leadOpen, setLeadOpen] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
   const dest = destinations[idx];
   const lines = brand.hero.headline;
 
+  const choose = (next: number) => {
+    if (next === idx) return;
+    setDir(next > idx ? 1 : -1);
+    setIdx(next);
+  };
+
   return (
     <section id="top" className="relative isolate z-0 flex min-h-svh flex-col overflow-hidden text-[#443A2C] lg:sticky lg:top-0 lg:h-svh lg:min-h-[640px]">
-      <BrandStage dest={dest} />
+      {!introDone && <IntroMark targetId="adat-mark-slot" onFly={() => setReady(true)} onDone={() => setIntroDone(true)} />}
+      <BrandStage dest={dest} dir={dir} ready={ready} />
 
       <motion.header
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
+        animate={{ opacity: ready ? 1 : 0 }}
+        transition={{ duration: 0.8 }}
         className="relative z-20 mx-auto flex w-full max-w-[1480px] items-center justify-between gap-6 px-5 pt-5 sm:px-8 sm:pt-7 lg:px-12"
       >
         <a href="#top" className="flex min-h-11 items-center gap-3 text-[#315059]" aria-label={brand.name}>
-          <AdatMark className="h-12 w-auto shrink-0" />
+          <span id="adat-mark-slot" className="shrink-0">
+            <AdatMark className="h-12 w-auto" show={introDone} />
+          </span>
           <span className="leading-none">
             <span className="block font-display text-[1.55rem] tracking-[0.28em]">{brand.name}</span>
             <span className="mt-1 block text-[11px] uppercase tracking-[0.22em] text-[#443A2C]/70">{brand.descriptor}</span>
@@ -65,33 +81,28 @@ export function Hero() {
         <div className="max-w-[72rem]">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.08 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
             className="mb-5 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.3em] text-[#315059] sm:mb-7"
           >
             <span className="h-px w-10 bg-brand" />
             {brand.hero.eyebrow}
           </motion.p>
 
-          <h1 className="font-heading text-[clamp(2.4rem,11vw,7.4rem)] font-light leading-[0.94] tracking-[-0.01em] text-balance text-[#443A2C]">
-            {lines.map((line, i) => (
-              <span key={line} className="block overflow-hidden pb-[0.08em] lg:whitespace-nowrap">
-                <motion.span
-                  className={`block ${i === 1 ? "italic text-[#b24d29]" : ""}`}
-                  initial={{ y: "108%" }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 0.75, delay: 0.16 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  {line}
-                </motion.span>
-              </span>
-            ))}
-          </h1>
+          <AnimatedHeading
+            as="h1"
+            immediate
+            active={ready}
+            delay={0.25}
+            trackFrom="0.08em"
+            parts={[lines[0], "\n", { text: lines[1], className: "italic text-[#b24d29]" }]}
+            className="font-heading text-[clamp(2.4rem,11vw,7.4rem)] font-light leading-[0.94] text-[#443A2C]"
+          />
 
           <motion.p
             initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.42 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+            transition={{ duration: 0.7, delay: 0.9 }}
             className="mt-5 hidden max-w-[32rem] text-[15px] leading-relaxed text-[#443A2C]/85 sm:mt-6 sm:block sm:text-base"
           >
             {brand.hero.lead}
@@ -99,8 +110,8 @@ export function Hero() {
 
           <motion.div
             initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.58 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+            transition={{ duration: 0.7, delay: 1.1 }}
             className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-3 sm:mt-8"
           >
             <Button
@@ -129,13 +140,15 @@ export function Hero() {
           <motion.nav
             aria-label="Направления"
             initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
+            animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            transition={{ duration: 0.7, delay: 1.2 }}
             onKeyDown={(event) => {
               if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
               event.preventDefault();
-              const next = event.key === "ArrowDown" || event.key === "ArrowRight" ? idx + 1 : idx - 1;
-              setIdx((next + destinations.length) % destinations.length);
+              const step = event.key === "ArrowDown" || event.key === "ArrowRight" ? 1 : -1;
+              const next = (idx + step + destinations.length) % destinations.length;
+              setDir(step === 1 ? 1 : -1);
+              setIdx(next);
             }}
             className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none lg:mx-0 lg:w-full lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
           >
@@ -145,18 +158,8 @@ export function Hero() {
                 <button
                   key={d.id}
                   type="button"
-                  onClick={() => {
-                    setIdx(i);
-                    if (window.innerWidth < 1024) return;
-                    const target = document.getElementById(`route-${d.id}`);
-                    if (!target) return;
-                    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-                  }}
-                  onFocus={() => setIdx(i)}
-                  onPointerEnter={(event) => {
-                    if (event.pointerType === "mouse") setIdx(i);
-                  }}
+                  onClick={() => choose(i)}
+                  onFocus={() => choose(i)}
                   aria-current={active ? "true" : undefined}
                   className={`group flex shrink-0 items-center gap-3 bg-transparent px-2 py-3 lg:w-full lg:justify-end lg:px-0 lg:py-2.5 ${
                     active ? "legible-sea" : "legible"
@@ -180,22 +183,9 @@ export function Hero() {
                 </button>
               );
             })}
-            <div className="hidden min-h-[4.5rem] text-right lg:block">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={dest.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.4 }}
-                  className="legible mt-3 text-sm leading-relaxed"
-                >
-                  <span className="legible-brick mb-1 block text-xs uppercase tracking-[0.24em]">{dest.kicker}</span>
-                  {dest.blurb}
-                </motion.p>
-              </AnimatePresence>
-            </div>
           </motion.nav>
+
+          <HeroPlacePanel dest={dest} dir={dir} />
         </div>
       </div>
 

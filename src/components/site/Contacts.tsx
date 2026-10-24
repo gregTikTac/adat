@@ -1,4 +1,5 @@
 import { brand } from "@/config/brand";
+import { AnimatedHeading } from "./AnimatedHeading";
 import { Reveal } from "./Reveal";
 
 export function Contacts() {
@@ -8,9 +9,11 @@ export function Contacts() {
         <Reveal>
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Контакты</p>
-            <h2 className="mt-4 font-heading text-[clamp(2.4rem,5vw,4.4rem)] font-light leading-none">
-              Начнём с <span className="italic text-[#b24d29]">разговора</span>
-            </h2>
+            <AnimatedHeading
+              as="h2"
+              parts={["Начнём с ", { text: "разговора", className: "italic text-[#b24d29]" }]}
+              className="mt-4 font-heading text-[clamp(2.4rem,5vw,4.4rem)] font-light leading-none"
+            />
             <a href="#match" className="mt-8 inline-flex h-12 items-center rounded-full bg-brand px-7 text-[15px] font-medium text-brand-ink hover:bg-white">
               Подобрать тур
             </a>

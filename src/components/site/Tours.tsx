@@ -1,6 +1,8 @@
 import { destinations } from "@/data/destinations";
 import { placePhotos } from "@/data/places";
 import { tourExamples } from "@/data/tours";
+import { AnimatedHeading } from "./AnimatedHeading";
+import { GlowImage } from "./GlowImage";
 import { Reveal } from "./Reveal";
 
 export function Tours() {
@@ -9,9 +11,11 @@ export function Tours() {
       <div className="mx-auto max-w-[1480px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
         <Reveal>
           <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Как может выглядеть день</p>
-          <h2 className="mt-3 max-w-2xl font-heading text-[clamp(2.2rem,4.5vw,4rem)] font-light leading-none">
-            Программы <span className="italic text-[#b24d29]">для примера</span>
-          </h2>
+          <AnimatedHeading
+            as="h2"
+            parts={["Программы ", { text: "для примера", className: "italic text-[#b24d29]" }]}
+            className="mt-3 max-w-2xl font-heading text-[clamp(2.2rem,4.5vw,4rem)] font-light leading-none"
+          />
           <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-[#443A2C]/75">
             Это черновик подачи, не оферта. Цен, дат и гарантий здесь нет: стоимость и состав уточняются в заявке.
           </p>
@@ -27,16 +31,21 @@ export function Tours() {
                 <article id={`tour-${d.id}`} className="scroll-mt-8 grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
                   <div className={flip ? "lg:order-2" : ""}>
                     <div className="grid grid-cols-[minmax(0,1.45fr)_minmax(0,0.72fr)] gap-3">
-                      <img src={photos[0].src} alt={photos[0].alt} className="aspect-[4/5] h-full w-full object-cover" loading="lazy" />
+                      <GlowImage src={photos[0].src} alt={photos[0].alt} className="aspect-[4/5] w-full" />
                       <div className="grid h-full min-h-0 grid-rows-2 gap-3">
-                        <img src={photos[1].src} alt={photos[1].alt} className="h-full min-h-0 w-full object-cover" loading="lazy" />
-                        <img src={photos[2].src} alt={photos[2].alt} className="h-full min-h-0 w-full object-cover" loading="lazy" />
+                        <GlowImage src={photos[1].src} alt={photos[1].alt} className="h-full min-h-0 w-full" />
+                        <GlowImage src={photos[2].src} alt={photos[2].alt} className="h-full min-h-0 w-full" />
                       </div>
                     </div>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-[0.24em] text-[#b24d29]">{d.kicker}</p>
-                    <h3 className="mt-2 font-display text-5xl leading-none">{d.name}</h3>
+                    <AnimatedHeading
+                      as="h3"
+                      parts={[d.name]}
+                      trackFrom="0.2em"
+                      className="mt-2 font-display text-5xl leading-none"
+                    />
                     <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#443A2C]/80">{d.blurb}</p>
                     <dl className="mt-6 grid grid-cols-2 gap-4 text-sm">
                       <div>

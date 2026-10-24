@@ -1,4 +1,5 @@
 import { placePhotos } from "@/data/places";
+import { AnimatedHeading } from "./AnimatedHeading";
 import { Reveal } from "./Reveal";
 import { ParallaxImage } from "./ParallaxImage";
 
@@ -11,9 +12,11 @@ export function Story() {
       <div className="mx-auto grid max-w-[1480px] items-end gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16 lg:px-12 lg:py-28">
         <Reveal>
           <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Философия</p>
-          <h2 className="mt-4 font-heading text-[clamp(2.4rem,5vw,4.6rem)] font-light leading-[0.96] text-balance">
-            Дагестан, который хочется <span className="italic text-[#b24d29]">открыть</span>
-          </h2>
+          <AnimatedHeading
+            as="h2"
+            parts={["Дагестан, который хочется ", { text: "открыть", className: "italic text-[#b24d29]" }]}
+            className="mt-4 font-heading text-[clamp(2.4rem,5vw,4.6rem)] font-light leading-[0.96]"
+          />
           <p className="mt-6 max-w-md text-base leading-relaxed text-[#443A2C]/80">
             Мы выезжаем из Махачкалы и оставляем в дне место для дороги, людей и стола. Край должен открыться не открыткой, а местом, в котором хочется быть.
           </p>

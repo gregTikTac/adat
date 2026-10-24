@@ -3,82 +3,99 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import type { Destination } from "@/data/destinations";
+import { EASE_OUT, EASE_WIPE, wipeHidden, wipeShown, type WipeDir } from "@/lib/wipe";
 
 type Plate = { src: string; alt: string; focus: string };
 
-/** Each route keeps its own plates. Paintings sit with the Gunib book plates that match that place. */
+/** Each route keeps its own plates. Light WebP copies of the brand pictures (see public/brand/web). */
 const PLATES: Record<string, Plate[]> = {
   sulak: [
-    { src: "/brand/sulak-canyon.jpg", alt: "Сулакский каньон", focus: "object-[70%_40%]" },
-    { src: "/brand/sulak-river.jpg", alt: "Река в Сулакском каньоне", focus: "object-center" },
+    { src: "/brand/web/sulak-canyon.webp", alt: "Сулакский каньон", focus: "object-[70%_40%]" },
+    { src: "/brand/web/sulak-river.webp", alt: "Река в Сулакском каньоне", focus: "object-center" },
   ],
   derbent: [
-    { src: "/brand/derbent-engraving.png", alt: "Цитадель Дербента", focus: "object-[58%_32%]" },
+    { src: "/brand/web/derbent-engraving.webp", alt: "Цитадель Дербента", focus: "object-[58%_32%]" },
   ],
   gunib: [
-    { src: "/brand/gunib-aivazovsky.jpg", alt: "Аул Гуниб", focus: "object-[56%_40%]" },
-    { src: "/brand/gunib-village.jpg", alt: "Аул в горах Гуниба", focus: "object-[68%_28%]" },
-    { src: "/brand/gunib-eagle.jpg", alt: "Горы Гуниба и орёл", focus: "object-[70%_26%]" },
-    { src: "/brand/gunib-fortress.jpg", alt: "Крепость Гуниба", focus: "object-[64%_32%]" },
+    { src: "/brand/web/gunib-aivazovsky.webp", alt: "Аул Гуниб", focus: "object-[56%_40%]" },
+    { src: "/brand/web/gunib-village.webp", alt: "Аул в горах Гуниба", focus: "object-[68%_28%]" },
+    { src: "/brand/web/gunib-eagle.webp", alt: "Горы Гуниба и орёл", focus: "object-[70%_26%]" },
+    { src: "/brand/web/gunib-fortress.webp", alt: "Крепость Гуниба", focus: "object-[64%_32%]" },
   ],
   khunzakh: [
-    { src: "/brand/gunib-line.jpg", alt: "Горный рисунок для плато", focus: "object-[64%_34%]" },
+    { src: "/brand/web/gunib-line.webp", alt: "Горный рисунок для плато", focus: "object-[64%_34%]" },
   ],
   goor: [
-    { src: "/brand/goor-tower.jpg", alt: "Башня на кромке обрыва", focus: "object-[40%_42%]" },
-    { src: "/brand/gunib-wall.jpg", alt: "Стена над ущельем", focus: "object-[66%_30%]" },
+    { src: "/brand/web/goor-tower.webp", alt: "Башня на кромке обрыва", focus: "object-[40%_42%]" },
+    { src: "/brand/web/gunib-wall.webp", alt: "Стена над ущельем", focus: "object-[66%_30%]" },
   ],
 };
 
 const HOLD_MS = 12000;
 
-export function BrandStage({ dest }: { dest: Destination }) {
+type Props = { dest: Destination; dir: WipeDir; ready: boolean };
+
+/**
+ * Hero background. Changing the place wipes the new picture in along a diagonal,
+ * with a short zoom-out, so the swap reads as one movement. Pictures are decoded
+ * before they are shown and the rest are warmed up in the background.
+ */
+export function BrandStage({ dest, dir, ready }: Props) {
   const plates = PLATES[dest.id] ?? PLATES.gunib;
-  const [frame, setFrame] = useState(0);
-  const [opened, setOpened] = useState(false);
+  const [slide, setSlide] = useState({ id: dest.id, n: 0 });
+  const frame = slide.id === dest.id ? slide.n : 0;
   const reduce = useReducedMotion();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 800], [0, reduce ? 0 : 72]);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setOpened(true), 1100);
-    return () => window.clearTimeout(timer);
+    const warm = window.setTimeout(() => {
+      Object.values(PLATES)
+        .flat()
+        .forEach((p) => {
+          const img = new Image();
+          img.src = p.src;
+          void img.decode?.().catch(() => {});
+        });
+    }, 500);
+    return () => window.clearTimeout(warm);
   }, []);
 
   useEffect(() => {
-    setFrame(0);
     if (plates.length < 2 || reduce) return;
     const id = window.setInterval(() => {
-      setFrame((n) => (n + 1) % plates.length);
+      setSlide((s) => ({ id: dest.id, n: ((s.id === dest.id ? s.n : 0) + 1) % plates.length }));
     }, HOLD_MS);
     return () => window.clearInterval(id);
   }, [dest.id, plates, reduce]);
 
   const plate = plates[frame % plates.length];
-  const reveal = !opened && !reduce;
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#ebe0cc]" aria-hidden>
-      <motion.div style={{ y }} className="absolute inset-x-0 top-0 h-[68%] overflow-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:w-[78%]">
-        <AnimatePresence mode="sync">
-          <motion.img
-            key={`${dest.id}-${frame}-${plate.src}`}
-            src={plate.src}
-            alt=""
-            initial={
-              reveal
-                ? { clipPath: "inset(12% 8% 16% 20%)", opacity: 0.35, scale: 1.02 }
-                : { opacity: 0, scale: 1 }
-            }
-            animate={{ clipPath: "inset(0% 0% 0% 0%)", opacity: 1, scale: reduce ? 1 : 1.08 }}
-            exit={{ opacity: 0 }}
-            transition={{
-              clipPath: { duration: 1.05, ease: [0.16, 1, 0.3, 1] },
-              opacity: { duration: 1.2, ease: "easeInOut" },
-              scale: { duration: reduce ? 0.4 : HOLD_MS / 1000, ease: "linear" },
-            }}
-            className={`absolute inset-0 h-full w-full object-cover max-lg:object-center ${plate.focus}`}
-          />
+      <motion.div
+        style={{ y }}
+        className="absolute inset-x-0 top-0 h-[68%] overflow-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:w-[78%]"
+      >
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={`${dest.id}-${frame}`}
+            className="absolute inset-0"
+            initial={reduce ? { opacity: 0 } : { clipPath: wipeHidden(dir) }}
+            animate={ready ? (reduce ? { opacity: 1 } : { clipPath: wipeShown(dir) }) : undefined}
+            exit={{ opacity: 0.999, transition: { duration: 1.25, ease: "linear" } }}
+            transition={{ duration: reduce ? 0.4 : 1.15, ease: EASE_WIPE }}
+          >
+            <motion.img
+              src={plate.src}
+              alt=""
+              draggable={false}
+              initial={reduce ? false : { scale: 1.22 }}
+              animate={ready ? { scale: reduce ? 1 : 1.06 } : undefined}
+              transition={{ duration: reduce ? 0.4 : 2.4, ease: EASE_OUT }}
+              className={`h-full w-full object-cover max-lg:object-center ${plate.focus}`}
+            />
+          </motion.div>
         </AnimatePresence>
       </motion.div>
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#ebe0cc] from-0% via-[#ebe0cc]/95 via-[45%] to-transparent to-[75%] max-lg:hidden" />

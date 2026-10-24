@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { destinations, type SceneId } from "@/data/destinations";
 import { Button } from "@/components/ui/button";
+import { AnimatedHeading } from "./AnimatedHeading";
 import { Reveal } from "./Reveal";
 
 const interests: { id: string; label: string; places: SceneId[] }[] = [
@@ -102,9 +103,11 @@ export function Match() {
         <Reveal>
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Подбор</p>
-            <h2 className="mt-4 font-heading text-[clamp(2.2rem,4.4vw,3.8rem)] font-light leading-none">
-              Куда ехать <span className="italic text-[#b24d29]">сначала</span>
-            </h2>
+            <AnimatedHeading
+              as="h2"
+              parts={["Куда ехать ", { text: "сначала", className: "italic text-[#b24d29]" }]}
+              className="mt-4 font-heading text-[clamp(2.2rem,4.4vw,3.8rem)] font-light leading-none"
+            />
             <p className="mt-5 max-w-md text-[15px] leading-relaxed text-[#443A2C]/75">
               Выберите интерес. Справа появятся направления из этой страницы. Заявка записывается в прототип и не уходит менеджеру, пока не подключена CRM.
             </p>

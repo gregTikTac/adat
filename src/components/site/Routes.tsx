@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { destinations } from "@/data/destinations";
 import { placePhotos } from "@/data/places";
+import { AnimatedHeading } from "./AnimatedHeading";
+import { GlowImage } from "./GlowImage";
 import { Reveal } from "./Reveal";
 
 export function Routes() {
@@ -36,9 +38,11 @@ export function Routes() {
     <section id="routes" className="relative z-20 bg-[#f3eadc] text-[#443A2C]">
       <div className="mx-auto max-w-[1480px] px-5 pt-16 sm:px-8 lg:px-12 lg:pt-24">
         <p className="text-xs uppercase tracking-[0.28em] text-[#315059]">Пять направлений</p>
-        <h2 className="mt-3 max-w-xl font-heading text-[clamp(2.2rem,4.5vw,4rem)] font-light leading-none">
-          Маршруты из Махачкалы
-        </h2>
+        <AnimatedHeading
+          as="h2"
+          parts={["Маршруты из Махачкалы"]}
+          className="mt-3 max-w-xl font-heading text-[clamp(2.2rem,4.5vw,4rem)] font-light leading-none"
+        />
       </div>
 
       <div className="mx-auto mt-10 grid max-w-[1480px] lg:mt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start">
@@ -56,21 +60,18 @@ export function Routes() {
                       {String(i + 1).padStart(2, "0")}
                       <span className="text-[#443A2C]/35"> / 05</span>
                     </p>
-                    <h3 className="mt-3 font-display text-[clamp(2.4rem,5vw,4.2rem)] leading-none transition-colors group-hover:text-[#315059]">
-                      {d.name}
-                    </h3>
+                    <AnimatedHeading
+                      as="h3"
+                      parts={[d.name]}
+                      trackFrom="0.2em"
+                      className="mt-3 font-display text-[clamp(2.4rem,5vw,4.2rem)] leading-none transition-colors group-hover:text-[#315059]"
+                    />
                     <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[#443A2C]/75">{d.blurb}</p>
                     <p className="mt-4 text-xs uppercase tracking-[0.22em] text-[#b24d29]">
                       {d.flight} на авто · подробнее
                     </p>
                   </a>
-                  <img
-                    src={frame.src}
-                    alt={frame.alt}
-                    className="mt-6 aspect-[16/10] w-full object-cover lg:hidden"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <GlowImage src={frame.src} alt={frame.alt} className="mt-6 aspect-[16/10] w-full lg:hidden" />
                 </article>
               </Reveal>
             );
