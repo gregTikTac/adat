@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import { ArrowRight, ArrowUpRight, Phone } from "lucide-react";
 import { brand } from "@/config/brand";
 import { destinations } from "@/data/destinations";
-import type { WipeDir } from "@/lib/wipe";
+import type { SwapMode, WipeDir } from "@/lib/wipe";
 import { AnimatedHeading } from "@/components/site/AnimatedHeading";
 import { AdatMark } from "./AdatMark";
 import { BrandStage } from "./BrandStage";
@@ -18,22 +18,25 @@ import { MobileNav } from "./MobileNav";
 export function Hero() {
   const [idx, setIdx] = useState(0);
   const [dir, setDir] = useState<WipeDir>(1);
+  const [mode, setMode] = useState<SwapMode>("wipe");
   const [leadOpen, setLeadOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const [introDone, setIntroDone] = useState(false);
   const dest = destinations[idx];
   const lines = brand.hero.headline;
 
-  const choose = (next: number) => {
+  /** `swap` is "fade" for a mouse hover (quiet dissolve) and "wipe" for a click, tap or key. */
+  const choose = (next: number, swap: SwapMode = "wipe") => {
     if (next === idx) return;
     setDir(next > idx ? 1 : -1);
+    setMode(swap);
     setIdx(next);
   };
 
   return (
     <section id="top" className="relative isolate z-0 flex min-h-svh flex-col overflow-hidden text-[#443A2C] lg:sticky lg:top-0 lg:h-svh lg:min-h-[640px]">
       {!introDone && <IntroMark targetId="adat-mark-slot" onFly={() => setReady(true)} onDone={() => setIntroDone(true)} />}
-      <BrandStage dest={dest} dir={dir} ready={ready} />
+      <BrandStage dest={dest} dir={dir} mode={mode} ready={ready} />
 
       <motion.header
         initial={{ opacity: 0 }}
@@ -47,7 +50,7 @@ export function Hero() {
           </span>
           <span className="leading-none">
             <span className="block font-display text-[1.55rem] tracking-[0.28em]">{brand.name}</span>
-            <span className="mt-1 block text-[11px] uppercase tracking-[0.22em] text-[#443A2C]/70">{brand.descriptor}</span>
+            <span className="legible mt-1 block text-[11px] font-medium uppercase tracking-[0.22em]">{brand.descriptor}</span>
           </span>
         </a>
         <nav aria-label="Основное меню" className="hidden items-center gap-9 lg:flex">
@@ -77,7 +80,7 @@ export function Hero() {
         </div>
       </motion.header>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1480px] flex-1 flex-col justify-end gap-6 px-5 pb-8 pt-[34svh] sm:px-8 sm:pb-16 lg:min-h-0 lg:flex-row lg:items-center lg:justify-between lg:gap-10 lg:px-12 lg:pt-0">
+      <div className="relative z-10 mx-auto flex w-full max-w-[1480px] flex-1 flex-col justify-end gap-6 px-5 pb-8 pt-[max(46svh,280px)] sm:px-8 sm:pb-16 lg:min-h-0 lg:flex-row lg:items-center lg:justify-between lg:gap-10 lg:px-12 lg:pt-0">
         <div className="max-w-[72rem]">
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -96,7 +99,7 @@ export function Hero() {
             delay={0.25}
             trackFrom="0.08em"
             parts={[lines[0], "\n", { text: lines[1], className: "italic text-[#b24d29]" }]}
-            className="font-heading text-[clamp(2.4rem,11vw,7.4rem)] font-light leading-[0.94] text-[#443A2C]"
+            className="font-heading text-[clamp(2.4rem,11vw,4rem)] font-light leading-[0.94] text-[#443A2C] sm:text-[clamp(3rem,8vw,4.6rem)] lg:text-[clamp(3.4rem,5.6vw,6.2rem)]"
           />
 
           <motion.p
@@ -131,7 +134,7 @@ export function Hero() {
           </motion.div>
         </div>
 
-        <div id="destinations" className="relative -mx-5 bg-[#ebe0cc]/80 px-5 py-3 lg:mx-0 lg:w-[22rem] lg:shrink-0 lg:bg-transparent lg:p-0">
+        <div id="destinations" className="relative -mx-5 bg-[#ebe0cc] px-5 py-3 lg:mx-0 lg:w-[21rem] lg:shrink-0 lg:bg-transparent lg:p-0 xl:w-[23rem]">
           <div aria-hidden className="pointer-events-none absolute -inset-x-16 -inset-y-10 -z-10 hidden bg-[#ebe0cc]/88 blur-2xl lg:block" />
           <p className="legible-sea mb-2 font-display text-sm tracking-[0.28em] lg:text-right">
             {String(idx + 1).padStart(2, "0")}
@@ -148,6 +151,7 @@ export function Hero() {
               const step = event.key === "ArrowDown" || event.key === "ArrowRight" ? 1 : -1;
               const next = (idx + step + destinations.length) % destinations.length;
               setDir(step === 1 ? 1 : -1);
+              setMode("wipe");
               setIdx(next);
             }}
             className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1 scrollbar-none lg:mx-0 lg:w-full lg:flex-col lg:items-end lg:gap-0 lg:overflow-visible lg:px-0 lg:pb-0"
@@ -158,8 +162,11 @@ export function Hero() {
                 <button
                   key={d.id}
                   type="button"
-                  onClick={() => choose(i)}
-                  onFocus={() => choose(i)}
+                  onClick={() => choose(i, "wipe")}
+                  onFocus={() => choose(i, "wipe")}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === "mouse") choose(i, "fade");
+                  }}
                   aria-current={active ? "true" : undefined}
                   className={`group flex shrink-0 items-center gap-3 bg-transparent px-2 py-3 lg:w-full lg:justify-end lg:px-0 lg:py-2.5 ${
                     active ? "legible-sea" : "legible"
@@ -185,7 +192,7 @@ export function Hero() {
             })}
           </motion.nav>
 
-          <HeroPlacePanel dest={dest} dir={dir} />
+          <HeroPlacePanel dest={dest} dir={dir} mode={mode} />
         </div>
       </div>
 

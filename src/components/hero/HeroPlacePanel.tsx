@@ -5,22 +5,30 @@ import { ArrowRight } from "lucide-react";
 import type { Destination } from "@/data/destinations";
 import { placePhotos } from "@/data/places";
 import { PhotoCarousel } from "@/components/site/PhotoCarousel";
-import { EASE_OUT, type WipeDir } from "@/lib/wipe";
+import { EASE_OUT, type SwapMode, type WipeDir } from "@/lib/wipe";
 
-type Props = { dest: Destination; dir: WipeDir };
+type Props = { dest: Destination; dir: WipeDir; mode: SwapMode };
 
 /**
  * Photo slider and caption of the chosen place, right on the main screen.
- * When the place changes, the caption slides along the same diagonal as the background.
+ * After a click the caption slides along the diagonal of the background;
+ * after a mouse hover it only fades.
  */
-export function HeroPlacePanel({ dest, dir }: Props) {
+export function HeroPlacePanel({ dest, dir, mode }: Props) {
   const reduce = useReducedMotion();
-  const dx = reduce ? 0 : dir * 28;
-  const dy = reduce ? 0 : dir * 16;
+  const slide = mode === "wipe" && !reduce;
+  const dx = slide ? dir * 28 : 0;
+  const dy = slide ? dir * 16 : 0;
 
   return (
     <div className="mt-4 lg:mt-5">
-      <PhotoCarousel id={dest.id} photos={placePhotos[dest.id]} className="aspect-[16/10] w-full" />
+      <PhotoCarousel
+        id={dest.id}
+        photos={placePhotos[dest.id]}
+        swapMode={mode}
+        swapDir={dir}
+        className="aspect-[16/10] w-full"
+      />
 
       <div className="relative mt-4 min-h-[8.5rem] overflow-hidden lg:min-h-[9.5rem] lg:text-right">
         <AnimatePresence mode="wait" initial={false}>
@@ -29,7 +37,7 @@ export function HeroPlacePanel({ dest, dir }: Props) {
             initial={{ opacity: 0, x: dx, y: dy }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             exit={{ opacity: 0, x: -dx, y: -dy, transition: { duration: 0.28, ease: "easeIn" } }}
-            transition={{ duration: 0.7, ease: EASE_OUT }}
+            transition={{ duration: slide ? 0.7 : 0.9, ease: EASE_OUT }}
             className="legible text-sm leading-relaxed"
           >
             <span className="legible-brick mb-1 block text-xs uppercase tracking-[0.24em]">{dest.kicker}</span>

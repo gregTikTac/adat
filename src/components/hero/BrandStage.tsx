@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import type { Destination } from "@/data/destinations";
-import { EASE_OUT, EASE_WIPE, wipeHidden, wipeShown, type WipeDir } from "@/lib/wipe";
+import { EASE_OUT, EASE_WIPE, wipeHidden, wipeShown, type SwapMode, type WipeDir } from "@/lib/wipe";
 
 type Plate = { src: string; alt: string; focus: string };
 
@@ -33,14 +33,16 @@ const PLATES: Record<string, Plate[]> = {
 
 const HOLD_MS = 12000;
 
-type Props = { dest: Destination; dir: WipeDir; ready: boolean };
+type Props = { dest: Destination; dir: WipeDir; mode: SwapMode; ready: boolean };
 
 /**
- * Hero background. Changing the place wipes the new picture in along a diagonal,
- * with a short zoom-out, so the swap reads as one movement. Pictures are decoded
- * before they are shown and the rest are warmed up in the background.
+ * Hero background. A click wipes the new picture in along a diagonal; hovering with a mouse
+ * only dissolves it in, slowly and without any sweep. Pictures are decoded in advance.
+ *
+ * On a phone the picture sits in its own band at the top and melts into the paper below,
+ * so the headline and the buttons always lie on a plain light surface and stay readable.
  */
-export function BrandStage({ dest, dir, ready }: Props) {
+export function BrandStage({ dest, dir, mode, ready }: Props) {
   const plates = PLATES[dest.id] ?? PLATES.gunib;
   const [slide, setSlide] = useState({ id: dest.id, n: 0 });
   const frame = slide.id === dest.id ? slide.n : 0;
@@ -70,37 +72,44 @@ export function BrandStage({ dest, dir, ready }: Props) {
   }, [dest.id, plates, reduce]);
 
   const plate = plates[frame % plates.length];
+  const wipe = mode === "wipe" && !reduce;
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-[#ebe0cc]" aria-hidden>
       <motion.div
         style={{ y }}
-        className="absolute inset-x-0 top-0 h-[68%] overflow-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:w-[78%]"
+        className="absolute inset-x-0 top-0 h-[46svh] min-h-[280px] overflow-hidden lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:min-h-0 lg:w-[78%]"
       >
         <AnimatePresence initial={false}>
           <motion.div
             key={`${dest.id}-${frame}`}
             className="absolute inset-0"
-            initial={reduce ? { opacity: 0 } : { clipPath: wipeHidden(dir) }}
-            animate={ready ? (reduce ? { opacity: 1 } : { clipPath: wipeShown(dir) }) : undefined}
-            exit={{ opacity: 0.999, transition: { duration: 1.25, ease: "linear" } }}
-            transition={{ duration: reduce ? 0.4 : 1.15, ease: EASE_WIPE }}
+            initial={wipe ? { clipPath: wipeHidden(dir) } : { opacity: 0, clipPath: wipeShown(dir) }}
+            animate={ready ? (wipe ? { clipPath: wipeShown(dir) } : { opacity: 1 }) : undefined}
+            exit={{ opacity: 0.999, transition: { duration: wipe ? 1.25 : 1.4, ease: "linear" } }}
+            transition={
+              wipe
+                ? { duration: 1.15, ease: EASE_WIPE }
+                : { duration: reduce ? 0.4 : 1.4, ease: "easeInOut" }
+            }
           >
             <motion.img
               src={plate.src}
               alt=""
               draggable={false}
-              initial={reduce ? false : { scale: 1.22 }}
+              initial={reduce ? false : { scale: wipe ? 1.22 : 1.08 }}
               animate={ready ? { scale: reduce ? 1 : 1.06 } : undefined}
-              transition={{ duration: reduce ? 0.4 : 2.4, ease: EASE_OUT }}
+              transition={{ duration: reduce ? 0.4 : wipe ? 2.4 : 2.8, ease: EASE_OUT }}
               className={`h-full w-full object-cover max-lg:object-center ${plate.focus}`}
             />
           </motion.div>
         </AnimatePresence>
       </motion.div>
+
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#ebe0cc] from-0% via-[#ebe0cc]/95 via-[45%] to-transparent to-[75%] max-lg:hidden" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#ebe0cc]/90 via-[#ebe0cc]/45 to-transparent lg:h-28 lg:from-[#ebe0cc] lg:via-[#ebe0cc]/80" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] bg-gradient-to-t from-[#ebe0cc] via-[#ebe0cc]/92 via-[55%] to-transparent lg:h-[18%] lg:via-[#ebe0cc]/40" />
+      <div className="pointer-events-none absolute inset-x-0 top-[calc(46svh-5rem)] h-20 bg-gradient-to-b from-transparent to-[#ebe0cc] max-lg:block lg:hidden" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-[18%] bg-gradient-to-t from-[#ebe0cc] via-[#ebe0cc]/40 to-transparent lg:block" />
     </div>
   );
 }

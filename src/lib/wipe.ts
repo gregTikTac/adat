@@ -5,6 +5,12 @@
  */
 export type WipeDir = 1 | -1;
 
+/**
+ * How one picture replaces another.
+ * "wipe" is a diagonal sweep (click, tap, keyboard); "fade" is a slow dissolve (mouse hover).
+ */
+export type SwapMode = "wipe" | "fade";
+
 export const wipeHidden = (dir: WipeDir) =>
   dir === 1 ? "polygon(0% 0%, 0% 0%, 0% 0%)" : "polygon(100% 100%, 100% 100%, 100% 100%)";
 
